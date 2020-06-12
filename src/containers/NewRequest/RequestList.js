@@ -583,7 +583,7 @@ class RequestList extends Component {
 
                   <div className="d-flex flex-wrap">
 
-                      <Col lg={2} md={4} sm={4} xs={6} className="mt-5">
+                      <Col lg={3} md={3} sm={6} xs={6} className="mt-5">
                           <Button className="square w-100-p" size={"large"} color="primary">
                               <Checkbox
                                   onChange={onSelectAll} className="custom-check-box"
@@ -591,17 +591,17 @@ class RequestList extends Component {
                               > Select All</Checkbox></Button>
                       </Col>
 
-                      <Col lg={2} md={4} sm={4} xs={6} className="mt-5">
+                      {/*<Col lg={2} md={4} sm={4} xs={6} className="mt-5">
                           <Button className="square w-100-p" size={"large"} color="primary"
                                   onClick={confirmApproveSelected}><Icon type="check"/>Approve</Button>
-                      </Col>
+                      </Col>*/}
 
-                      <Col lg={2} md={4} sm={4} xs={6} className="mt-5">
+                      <Col lg={3} md={3} sm={6} xs={6} className="mt-5">
                           <Button className="square w-100-p" size={"large"} color="primary"
                                   onClick={confirmRevokeSelected}><Icon type="minus-circle"/>Reject</Button>
                       </Col>
 
-                      <Col lg={2} md={4} sm={4} xs={6} className="mt-5">
+                      <Col lg={3} md={3} sm={6} xs={6} className="mt-5">
                           <Search
                               size="large"
                               placeholder="Search"
@@ -613,7 +613,7 @@ class RequestList extends Component {
                           />
                       </Col>
 
-                      <Col lg={2} md={4} sm={4} xs={6} className="mt-5">
+                      {/*<Col lg={2} md={4} sm={4} xs={6} className="mt-5">
                           <Select placeholder='Filter' value={filter} className='border-0 w-100-p float-right' size="large"
                                   onChange={(value) => onChange({
                                       target: {
@@ -627,14 +627,14 @@ class RequestList extends Component {
                               <Option value="mustReview">Must Review</Option>
                               <Option value="">All</Option>
                           </Select>
-                      </Col>
+                      </Col>*/}
 
-                      <Col lg={2} md={4} sm={4} xs={6} className="mt-5">
+                      <Col lg={3} md={3} sm={6} xs={6} className="mt-5">
                           <Select placeholder='' defaultValue="" value={groupBy} size="large" onChange={(value) => onChange({target: {name: 'groupBy', value}})}
                                   className='border-0 w-100-p float-right ' style={{width: 220}}>
-                              <Option value="users">Group by Users</Option>
-                              <Option value="entity">Group by Entity</Option>
-                              <Option value="request">Group by None</Option>
+                              <Option value="users">Arrange by Users</Option>
+                              <Option value="entity">Arrange by Group</Option>
+                              {/*<Option value="request">Group by None</Option>*/}
                           </Select>
                       </Col>
 

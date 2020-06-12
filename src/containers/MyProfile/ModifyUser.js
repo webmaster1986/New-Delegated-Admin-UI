@@ -706,7 +706,8 @@ class ModifyUser extends Component {
                 <CardBody>
                         <Row>
                             <Col md={12} sm={12} xs={12}>
-                                <Tabs defaultActiveKey="attributes" onChange={this.onTabChange} size="small">
+                                {this.Attributes()}
+                                {/*<Tabs defaultActiveKey="attributes" onChange={this.onTabChange} size="small">
                                     <TabPane tab="Attributes" key="attributes">
                                         {this.Attributes()}
                                     </TabPane>
@@ -725,7 +726,7 @@ class ModifyUser extends Component {
                                     <TabPane tab="Activities" key="activities">
                                         Activities To be implement
                                     </TabPane>
-                                </Tabs>
+                                </Tabs>*/}
                             </Col>
                         </Row>
                 </CardBody>

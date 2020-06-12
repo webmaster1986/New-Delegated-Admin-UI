@@ -48,7 +48,7 @@ class Request extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            groupBy: "request",
+            groupBy: "users",
             isSidebar: true,
             activeKey: "",
             loggedUser: {},
@@ -608,7 +608,7 @@ class Request extends Component {
                                                 })
                                             }
                                         </Tabs> :
-                                        <div className="no-user-found">
+                                        <div className="no-user-found text-center color-white mt-5">
                                             {!isLoading && "No Users Found"}
                                         </div>
                                 }

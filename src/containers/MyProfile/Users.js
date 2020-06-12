@@ -170,7 +170,7 @@ class MyProfile extends Component {
                               onCloseModifyUser={this.onCloseModifyUser}/>
                       }
                   </TabPane>
-                  <TabPane tab="Direct Reports" key="2">
+                  <TabPane tab="My Users" key="2">
                       {
                           !(isModifyUser && selectedRecord && selectedRecord.userId) ?
                             <Card className="mt-20">
@@ -179,7 +179,7 @@ class MyProfile extends Component {
                                         <Col md={6} sm={12} xs={12} className="d-flex">
                                         <span className="cursor-pointer ml-5 mr-5"><a><img
                                           src={require("../../images/user.png")} style={{width: 40}}/></a></span>
-                                            <h4 className="mt-10">Direct Reports</h4>
+                                            <h4 className="mt-10">My Users</h4>
                                         </Col>
                                     </Row>
                                 </CardHeader>
