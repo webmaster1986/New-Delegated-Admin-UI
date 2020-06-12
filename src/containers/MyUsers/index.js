@@ -2,15 +2,11 @@ import React, {Component} from 'react'
 import {Card, CardBody, Col, Row, CardHeader} from "reactstrap";
 import queryString from 'query-string'
 import './createUser.scss';
-import {Input, Button, message, Table, Switch, Spin, Tabs} from "antd";
+import { message, Table, Switch, Spin, Popconfirm } from "antd";
 import {ApiService} from "../../services";
-import ModifyUser from "./ModifyUser";
-import SetupProxy from "./SetupProxy";
 import {getUserName} from "../../services/ApiService";
-const {Search} = Input;
-const {TabPane} = Tabs;
 
-class MyProfile extends Component {
+class MyUsers extends Component {
     constructor(props){
         super(props)
         const params = this.props.history.location.search || ""
@@ -72,6 +68,11 @@ class MyProfile extends Component {
             if(data && data.resources && id){
                 selectedRecord = data.resources.find(item => item.userId === id)
             }
+            data.resources.forEach((res, index) => {
+                res.isAdmin = true
+                res.status = "Locked"
+                res.key = index
+            })
             this.setState({
                 identityUsersList: data.resources,
                 totalResource: data.totalResource,
@@ -89,8 +90,8 @@ class MyProfile extends Component {
 
     modifyUser = (selectedRecord,isModifyUser) => {
         this.setState({
-                isModifyUser,
-                selectedRecord
+            isModifyUser,
+            selectedRecord
         })
     }
 
@@ -100,6 +101,18 @@ class MyProfile extends Component {
             isModifyUser
         })
     }
+
+    onChange = (index, key) => {
+        let { identityUsersList } = this.state
+        if(key === 'status') {
+            identityUsersList[index][key] = identityUsersList[index][key] === "Locked" ? "Unlocked" : "Locked"
+        }
+        if(key === 'isAdmin') {
+            identityUsersList[index][key] = !(identityUsersList[index][key])
+        }
+        this.setState({identityUsersList})
+    }
+
 
     getColumns = (isSelf) => {
         const columns = [
@@ -126,13 +139,54 @@ class MyProfile extends Component {
             },
         ];
         if (!isSelf) {
-          columns.push({
-            title: 'Locked',
-            width: 150,
-              render: (record) => (
-                <Switch size="small" className="green w-80 red" checkedChildren={'Unlocked'} unCheckedChildren={"Locked"} defaultChecked />
-              )
-          });
+            columns.push(
+                {
+                    title: 'Status',
+                    width: 150,
+                    render: (record) => {
+                        const checked = record.status === "Locked"
+                        return (
+                            <Popconfirm
+                                title={checked ? 'Are you sure to make users Unlocked' : 'Are you sure to make users Locked'}
+                                okText={'Yes'}
+                                cancelText={'No'}
+                                onConfirm={() => this.onChange(record.key, 'status')}
+                            >
+                                <Switch
+                                    size="small"
+                                    className="green w-80 red"
+                                    checkedChildren={"Unlocked"}
+                                    unCheckedChildren={"Locked"}
+                                    checked={checked}
+                                />
+                            </Popconfirm>
+                        )
+                    }
+                },
+                {
+                    title: 'Admin',
+                    width: 150,
+                    render: (record) => {
+                        const checked = record.isAdmin
+                        return (
+                            <Popconfirm
+                                title={checked ? 'Are you sure to disable the account' : 'Are you sure to make users Admin'}
+                                okText={'Yes'}
+                                cancelText={'No'}
+                                onConfirm={() => this.onChange(record.key, 'isAdmin')}
+                            >
+                                <Switch
+                                    size="small"
+                                    className="green w-80 red"
+                                    checkedChildren={'No'}
+                                    unCheckedChildren={'Yes'}
+                                    checked={checked}
+                                />
+                            </Popconfirm>
+                        )
+                    }
+                },
+            );
         }
         return columns;
     }
@@ -159,17 +213,34 @@ class MyProfile extends Component {
     render() {
         const {isLoading, isModifyUser, selectedRecord, profile, activeKey} = this.state;
         return(
-          <div className="dashboard create-user">
-              {
-                  isLoading ? <Spin className='mt-50 custom-loading'/> :
-                      <ModifyUser
-                          isProfile
-                          selectedRecord={profile}
-                          onCloseModifyUser={this.onCloseModifyUser}
-                      />
-              }
-          </div>
+            <div className="dashboard create-user">
+                <Card className="mt-20">
+                    <CardHeader>
+                        <Row className="align-items-center">
+                            <Col md={6} sm={12} xs={12} className="d-flex">
+                                        <span className="cursor-pointer ml-5 mr-5"><a><img
+                                            src={require("../../images/user.png")} style={{width: 40}}/></a></span>
+                                <h4 className="mt-10">My Users</h4>
+                            </Col>
+                        </Row>
+                    </CardHeader>
+                    <CardBody>
+                        {isLoading ? <Spin className='mt-50 custom-loading'/> :
+                            <Row>
+                                <Col md={12} sm={12} xs={12}>
+                                    <Table
+                                        columns={this.getColumns()}
+                                        size="small"
+                                        dataSource={this.getFilteredUsers()}
+                                        pagination={false}
+                                    />
+                                </Col>
+                            </Row>
+                        }
+                    </CardBody>
+                </Card>
+            </div>
         )
     }
 }
-export default MyProfile
+export default MyUsers

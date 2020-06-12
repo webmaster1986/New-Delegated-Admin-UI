@@ -2,8 +2,9 @@ import React, { Component, Suspense } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import Layout from '../Layout/index';
 const HomePage = React.lazy(() => import('../Home/index'));
-const NewRequest= React.lazy(() => import('../NewRequest'));
 const MyProfile = React.lazy(() => import('../MyProfile/Users'));
+const Dashboard = React.lazy(() => import('../Dashboard/Dashboard'));
+const MyUsers = React.lazy(() => import('../MyUsers'));
 
 const loading = () => <div className="load">
   <div className="load__icon-wrap text-center ">
@@ -28,8 +29,9 @@ const wrappedRoutes = () => (
       <Suspense fallback={loading()}>
         <Switch>
           <Route path="/:clientId/my-profile" component={MyProfile} />
-          <Route path="/:clientId/dashboard" component={NewRequest} />
-          <Route path="/:clientId/" component={NewRequest} />
+          <Route path="/:clientId/manage-users" component={MyUsers} />
+          <Route path="/:clientId/dashboard" component={Dashboard} />
+          <Route path="/:clientId/" component={Dashboard} />
         </Switch>
       </Suspense>
     </div>

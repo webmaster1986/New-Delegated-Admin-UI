@@ -31,7 +31,15 @@ class SidebarContent extends Component {
           isClient ?
             <ul className="sidebar__block">
               <SidebarLink title="Dashboard" icon="diamond" route={`/${clientId}/dashboard`} onClick={this.hideSidebar}/>
-              <SidebarLink title="My Profile" icon="diamond" route={`/${clientId}/my-profile`} onClick={this.hideSidebar}/>
+              <SidebarLink title="Manage Users" icon="diamond" route={`/${clientId}/manage-users`} onClick={this.hideSidebar}/>
+              <SidebarCategory title="Grant Access" icon="diamond">
+                <SidebarLink title="By Users" route={`/${clientId}/admin/entities/roles`} onClick={this.hideSidebar} />
+                <SidebarLink title="By Groups" route={`/${clientId}/admin/entities/applications`} onClick={this.hideSidebar} />
+              </SidebarCategory>
+              <SidebarCategory title="Revoke Access" icon="diamond">
+                <SidebarLink title="By Users" route={`/${clientId}/admin/entities/roles`} onClick={this.hideSidebar} />
+                <SidebarLink title="By Groups" route={`/${clientId}/admin/entities/applications`} onClick={this.hideSidebar} />
+              </SidebarCategory>
               {/*<SidebarCategory title="Request Access" icon="diamond">*/}
               {/*  <a href={`/iga/${clientId}/request/request-for-self`}>*/}
               {/*    <li className="sidebar__link"><p className="sidebar__link-title">Self</p></li>*/}
