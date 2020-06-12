@@ -1,0 +1,78 @@
+@import '../../scss/variables';
+
+.header-custom {
+  display: flex;
+  text-align: center;
+  height: 60px;
+  // border-bottom: 2px solid #0c2461;
+  position: fixed;
+  z-index: 101;
+  top: 0;
+  width: auto;
+  left: 20%;
+  > div {
+    flex: 1;
+  }
+
+  .logo {
+    max-width: 320px;
+    background-color: $primary-color;
+    color: $color-white;
+    padding: 13px 18px 18px 18px;
+    @media screen and (min-width: 768px) {
+      padding-left: 40px;
+    }
+  }
+  .custom-title{
+    font-size: 25px;
+    padding: 10px 8px 8px 5px;
+    color: $color-white;
+    font-family: $font-family-bold;
+    // background-color: $primary-color;
+    .app-title-icon-and-app-title {
+      @media screen and (max-width: 767px) {
+        display: none;
+      }
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden !important;
+      text-overflow: ellipsis;
+      @media screen and (min-width: 1024px) and (max-width: 1439px) {
+        //padding: 10px 8px 8px 35px;
+        width: 430px;
+      }
+      @media screen and (min-width: 768px) and (max-width: 1023px) {
+        width: 250px;
+      }
+    }
+  }
+  .app-title-icon{
+    img{
+      width: 30px;
+      margin-right: 10px;
+    }
+  }
+  .app-title-icon-and-app-title {
+    @media screen and (max-width: 767px) {
+      display: none;
+    }
+  }
+  .padding {
+    @media screen and (min-width: 767px) {
+      padding-right: 30px !important;
+    }
+  }
+
+  @media screen and (max-width: 1150px) {
+    left: 31%;
+  }
+  @media screen and (max-width: 767px) {
+    display: none;
+  }
+}
+.topbar__menu-wrap {
+  left: -20px;
+}
+.topbar__avatar:hover, .topbar__avatar:focus, .topbar__avatar:active, .topbar__avatar:focus:active {
+  background: transparent !important;
+}

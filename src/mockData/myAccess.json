@@ -1,0 +1,81 @@
+{
+  "TenantID":"KPDEMO_TENANTID",
+  "UserName":"BSMITH",
+  "FirstName":"Brian",
+  "LastName":"Smith",
+  "Email":"Brian.Smith@mail.com",
+  "Manager":"AMURRAY",
+  "Title":"Principal Architect",
+  "SSN":"1234",
+  "Role":[
+    {
+      "RoleName":"KPIAM001",
+      "Description":"KPIAM001",
+      "Owner":"",
+      "Owner Name":"",
+      "Item Risk":""
+    },
+    {
+      "RoleName":"KPIAM002",
+      "Description":"KPIAM002",
+      "Owner":"",
+      "Owner Name":"",
+      "Item Risk":""
+    },
+    {
+      "RoleName":"KPIAM003",
+      "Description":"KPIAM003",
+      "Owner":"",
+      "Owner Name":"",
+      "Item Risk":""
+    }
+  ],
+  "Application":[
+    {
+      "Application Name":"Peoplesoft",
+      "Account ID":"briansmith",
+      "Account Type":"",
+      "Application Reference":"",
+      "User Reference":"",
+      "Entitlement":[
+        {
+          "Value":"Default",
+          "Name":"Responsibility"
+        },
+        {
+          "Value":"PS FIN CLOUD IT Assets",
+          "Name":"Roles"
+        },
+        {
+          "Value":"PS FIN AM IT Assets",
+          "Name":"Roles"
+        },
+        {
+          "Value":"PS FIN IT WF Facility Management",
+          "Name":"Roles"
+        }
+      ]
+    },
+    {
+      "Application Name":"Active Directory",
+      "Account ID":"briansmith",
+      "Account Type":"",
+      "Application Reference":"",
+      "User Reference":"",
+      "Entitlement":[
+        {
+          "Value":"AAA-Wireless-HCWorkForce-G",
+          "Name":"Groups"
+        },
+        {
+          "Value":"GLB-Citrix-Users",
+          "Name":"Groups"
+        },
+        {
+          "Value":"VPN Access",
+          "Name":"Groups"
+        }
+      ]
+    }
+  ]
+}

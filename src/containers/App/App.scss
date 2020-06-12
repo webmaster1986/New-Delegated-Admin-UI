@@ -1,0 +1,348 @@
+@import '../../scss/variables';
+
+@font-face {
+  font-family: 'DroidSans-Bold';
+  src: url('../../scss/font/DroidSans-Bold.eot') format('embedded-opentype'),
+       url('../../scss/font/DroidSans-Bold.woff') format('woff'),
+       url('../../scss/font/DroidSans-Bold.ttf')  format('truetype'),
+       url('../../scss/font/DroidSans-Bold.svg#DroidSans-Bold') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'DroidSans';
+  src: url('../../scss/font/DroidSans.eot?#iefix') format('embedded-opentype'),
+       url('../../scss/font/DroidSans.woff') format('woff'),
+       url('../../scss/font/DroidSans.ttf')  format('truetype'),
+       url('../../scss/font/DroidSans.svg#DroidSans') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+*, button, input, optgroup, select, textarea {
+  font-family: $font-family;
+}
+b, strong{
+  font-family: $font-family-bold;
+}
+
+.left-profile{
+    background-color: #d8e8ef;
+    border-radius: 5px;
+    padding: 15px;
+    position: relative;
+    margin-bottom: 20px;
+    border-bottom: 3px solid #7bcdf1;
+      .flex-container {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .user-avtar {
+      background-color: tomato;
+      padding: 25px 20px;
+      line-height: 20px;
+      color: white;
+      font-family: $font-family-bold;
+      font-size: 2em;
+      text-align: center;
+      border-radius: 50%;
+    }
+    .user-detail{
+      padding: 10px 0 10px 0;
+    }
+    .user-value{
+      display: block;
+        float: right;
+        width: 60%;
+        text-align: left;
+        font-size: 15px;
+        padding-left: 5px;
+        line-height: 24px;
+        color: #1f2544;
+    }
+    .user-point{
+      float: left;
+      width: 40%;
+      text-align: right;
+      font-size: 13px;
+      line-height: 24px;
+      padding-right: 5px;
+      color: #9c9696;
+    }
+    .w-40{
+      width: 40% !important;
+    }
+    .w-60{
+      width: 60% !important;
+    }
+    .bg-opacity{
+      background: rgba(0, 0, 0, 0.04);
+    }
+    .profile-circle{
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 35px;
+    }
+    .ant-progress-inner{
+      width: 35px !important;
+      height: 35px !important;
+      font-size: 15px !important;
+    }
+    svg:not(:root){
+      width: 35px !important;
+    }
+}
+
+.ant-table .ant-table-thead tr th span {
+  font-family: $font-family-bold;
+}
+
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.custom-loading {
+  margin-left: 600px;
+}
+
+.ant-table-small>.ant-table-content>.ant-table-body>table>.ant-table-thead>tr>th {
+  background-color: #ffffff !important;
+}
+
+.color-white {
+  color: #fff !important;
+}
+
+.color-black {
+  color: black !important;
+}
+
+.ant-spin {
+  color: #fff;
+}
+
+.ant-table-small>.ant-table-content>.ant-table-body {
+  margin: 0;
+}
+.ant-table-small {
+  border: 0;
+  border-radius: 0;
+  padding: 0 10px 0 10px;
+}
+.custom-card-header {
+  h4 {
+    color: $color-white;
+  }
+  &.card-header {
+    background-color: $primary-color !important;
+    padding: 10px 20px 10px 0px !important;
+  }
+  &.main-div {
+    align-items: center !important;
+  }
+}
+
+
+@media (max-width: 992px) {
+  .ant-table-body {
+    overflow-x: auto !important;
+  }
+}
+
+.overflow-wrap {
+  overflow-wrap: break-word;
+}
+
+.topbar__avatar:hover, .topbar__avatar:focus, .topbar__avatar:active, .topbar__avatar:focus:active {
+  background: transparent !important;
+}
+
+.client-sidebar {
+  @media only screen and (min-width: 576px) {
+    .sidebar--collapse {
+      display: none;
+    }
+    .sidebar__back {
+      display: block;
+    }
+  }
+
+}
+
+.sidebar {
+  z-index: 100;
+}
+
+.content-center {
+  display: flex;
+  align-items: center;
+  align-content: center;
+  justify-content: center;
+}
+
+body {
+  .ant-switch-checked.green {
+    background-color: green !important;
+  }
+  .ant-switch.red  {
+    background-color: red;
+  }
+}
+
+/* Admin and Client Panel Card header scss */
+.application-manage {
+  h4 {
+    color: $color-white;
+  }
+  .card-header {
+    background-color: $primary-color;
+    padding: 10px 20px 10px 11px !important;
+  }
+
+  .ant-btn.square {
+    background: #005293;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 0;
+    padding-left: 10px;
+    font-family: "DroidSans-Bold";
+    height: 40px;
+  }
+  .search-box{
+    .ant-input {
+      border-radius: 0;
+    }
+  }
+
+  .expand-header{
+    h4 {
+      color: #3e426a !important;
+    }
+    p{
+      color: #3e426a
+    }
+  }
+
+  tr.ant-table-expanded-row{
+    background: #ffffff;
+  }
+  .modal-btn{
+    .ant-btn{
+      color: #fff !important;
+      background-color: #86b34d !important;
+      border-color: #86b34d !important;
+    }
+  }
+
+  .ant-tabs-nav .ant-tabs-tab {
+    width: 740px;
+    text-align: center;
+  }
+  .ant-tabs-nav  .ant-tabs-tab-active {
+    color: #424242;
+    font-weight: 500;
+    font-size: 17px;
+  }
+  .ant-tabs-nav  .ant-tabs-tab {
+    color: #424242;
+    font-weight: 500;
+    font-size: 17px;
+  }
+
+  .ant-tabs-ink-bar {
+    background-color: #00bcd4;
+  }
+}
+
+.xs-table-view {
+  width: 100%;
+  .responsive-table {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+
+    table {
+      width: 100%;
+    }
+
+    tr {
+      border: 1px solid #ddd;
+      border-bottom: 2px solid #ddd;
+      padding: 5px;
+      margin-bottom: 10px;
+      display: block;
+      @media screen and (min-width: 1000px) {
+        display: table-row;
+        border-bottom-width: 1px;
+        margin-bottom: 0;
+
+        &:nth-child(even) {
+          background: #fafafa;
+        }
+      }
+    }
+
+    th,
+    td {
+      padding: 10px;
+      text-align: left;
+    }
+    td {
+      display: block;
+      text-align: right;
+      font-size: 13px;
+      min-height: 40px;
+      border-bottom: 1px dotted #ddd;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      @media screen and (min-width: 1000px) {
+        display: table-cell;
+        text-align: left;
+        font-size: 14px;
+        border-bottom: none;
+      }
+      div:first-child {
+        float: left;
+        text-transform: uppercase;
+        font-weight: bold;
+      }
+    }
+    .normal-table {
+      tr {
+        display: table-row;
+      }
+      td {
+        display: table-cell;
+      }
+    }
+    .word-break {
+      //width: 600px;
+      //overflow-wrap: break-word;
+      //@media (max-width: 481px) {
+      //  width: 245px;
+      //}
+    }
+  }
+}
+
+.table-transfer {
+  .ant-table-column-title {
+    font-size: 13px;
+  }
+}
