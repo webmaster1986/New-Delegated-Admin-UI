@@ -33,12 +33,12 @@ class SidebarContent extends Component {
               <SidebarLink title="Dashboard" icon="diamond" route={`/${clientId}/dashboard`} onClick={this.hideSidebar}/>
               <SidebarLink title="Manage Users" icon="diamond" route={`/${clientId}/manage-users`} onClick={this.hideSidebar}/>
               <SidebarCategory title="Grant Access" icon="diamond">
-                <SidebarLink title="By Users" route={`/${clientId}/grant-access`} onClick={this.hideSidebar} />
-                <SidebarLink title="By Groups" route={`/${clientId}/admin/entities/applications`} onClick={this.hideSidebar} />
+                <SidebarLink title="By Users" route={`/${clientId}/grant-access-by-users`} onClick={this.hideSidebar} />
+                <SidebarLink title="By Groups" route={`/${clientId}/grant-access-by-groups`} onClick={this.hideSidebar} />
               </SidebarCategory>
               <SidebarCategory title="Revoke Access" icon="diamond">
-                <SidebarLink title="By Users" route={`/${clientId}/admin/entities/roles`} onClick={this.hideSidebar} />
-                <SidebarLink title="By Groups" route={`/${clientId}/admin/entities/applications`} onClick={this.hideSidebar} />
+                  <SidebarLink title="By Users" route={`/${clientId}/revoke-access-by-users`} onClick={this.hideSidebar} />
+                  <SidebarLink title="By Groups" route={`/${clientId}/revoke-access-by-groups`} onClick={this.hideSidebar} />
               </SidebarCategory>
               {/*<SidebarCategory title="Request Access" icon="diamond">*/}
               {/*  <a href={`/iga/${clientId}/request/request-for-self`}>*/}

@@ -10,10 +10,10 @@ import {
 } from "antd";
 const {Search} = Input;
 import {ApiService, getUserName} from "../../services/ApiService";
-import './request.scss'
+import '../GlobalComponents/Access.scss'
 import '../Home/Home.scss'
 
-import TableTransfer from "./TableTransfer";
+import TableTransfer from "../GlobalComponents/TableTransfer";
 
 const groupsListArray = [
     { name: 'Group 1', description: 'Group 1 description', id: 0 },
@@ -30,7 +30,7 @@ const groupsListArray = [
 ]
 
 
-class Request extends Component {
+class ByUsers extends Component {
     _apiService = new ApiService();
 
     constructor(props) {
@@ -104,22 +104,30 @@ class Request extends Component {
         return [
             {
                 title: 'User Name',
-                dataIndex: 'userName',
+                render: (record) => {
+                    return <span className="ws-nowrap">{record && (record.userName)}</span>
+                },
                 width: '20%'
             },
             {
                 title: 'Display Name',
-                dataIndex: 'displayName',
+                render: (record) => {
+                    return <span className="ws-nowrap">{record && (record.displayName)}</span>
+                },
                 width: '20%'
             },
             {
                 title: 'Department',
-                dataIndex: 'department',
+                render: (record) => {
+                    return <span className="ws-nowrap">{record && (record.department)}</span>
+                },
                 width: '20%'
             },
             {
                 title: 'Manager',
-                dataIndex: 'managerDisplayName',
+                render: (record) => {
+                    return <span className="ws-nowrap">{record && (record.managerDisplayName)}</span>
+                },
                 width: '20%'
             }
         ]
@@ -163,7 +171,7 @@ class Request extends Component {
 
             {
                 render: (record) => {
-                    return <div>
+                    return <div className="ws-nowrap">
                         <h4>{record.name}</h4>
                         <h6>Description Of {record.description}</h6>
                     </div>
@@ -194,14 +202,14 @@ class Request extends Component {
             {
                 title: 'Name',
                 render: (record) => {
-                    return <span>{record && (record.name)}</span>
+                    return <span className="ws-nowrap">{record && (record.name)}</span>
                 },
                 width: "60%",
             },
             {
                 title: 'Description',
                 render: (record) => {
-                    return <span>{record && (record.description)}</span>
+                    return <span className="ws-nowrap">{record && (record.description)}</span>
                 },
                 width: "20%",
             },
@@ -286,7 +294,7 @@ class Request extends Component {
             {
                 title: 'Name',
                 render: (record) => {
-                    return <span>Name: <b>{record.displayName}</b><br/> UserName: <b>{record.userName}</b></span>
+                    return <span className="ws-nowrap">Name: <b>{record.displayName}</b><br/> UserName: <b>{record.userName}</b></span>
                 },
                 width: "60%",
 
@@ -294,7 +302,7 @@ class Request extends Component {
             {
                 render: (record) => {
                     return (
-                        <span>Email: <b>{record.email}</b></span>);
+                        <span className="ws-nowrap">Email: <b>{record.email}</b></span>);
                 },
                 width: "20%",
 
@@ -324,9 +332,11 @@ class Request extends Component {
                                 <Row className="main-div">
                                     <Col md={10} sm={12} xs={12}>
                                         <Col md={6} sm={12} xs={12} className="d-flex">
-                                            <span className="cursor-pointer ml-5 mr-5"><a><img
-                                                src={require("../../images/request.png")}
-                                                style={{width: 40}}/></a></span>
+                                            <span className="cursor-pointer ml-5 mr-5">
+                                                <a>
+                                                    <img src={require("../../images/request.png")} style={{width: 40}}/>
+                                                </a>
+                                            </span>
                                             <h4 className="mt-10">Grant Access By Users</h4>
                                         </Col>
                                     </Col>
@@ -368,7 +378,8 @@ class Request extends Component {
                                     { current === 1 &&
                                         <Button
                                             disabled={!selectedUsersKeys.length}
-                                            className="float-right" type="primary" onClick={this.next}>
+                                            className="float-right" type="primary" onClick={this.next}
+                                        >
                                             Next
                                         </Button>
                                     }
@@ -379,22 +390,21 @@ class Request extends Component {
                                         <Col md="12" sm="12">
                                             <Row className="align-items-center">
                                                 <Col md={12} sm={12} xs={12}>
-                                                    <div className='user-header'
-                                                         style={{height: 35, paddingTop: 2}}>
+                                                    <div className='user-header' style={{height: 35, paddingTop: 2}}>
                                                         {
                                                             (users || []).slice(0, 3).map((x, i) => {
-                                                                return <span
-                                                                    className="mt-10 ml-10 fs-18">{x.displayName}</span>
+                                                                return <span className="mt-10 ml-10 fs-18">{x.displayName}{i === 2 ? "" : ","}</span>
                                                             })
-
                                                         }
-                                                        <span
-                                                            className="mt-20 ml-10 fs-18 ">&nbsp;{users.length > 3 ? `+${users.length - 3} more` : null}</span>
+                                                        <span className="mt-20 ml-10 fs-18 ">&nbsp;{users.length > 3 ? `+${users.length - 3} more` : null}</span>
                                                         <Button
                                                             className=" add-to-cart edit square mt-5 pull-right mr-10"
                                                             size={"small"}
                                                             color="primary"
-                                                            onClick={() => this.setState({current: 1})}>Edit</Button>
+                                                            onClick={() => this.setState({current: 1})}
+                                                        >
+                                                            Edit
+                                                        </Button>
                                                     </div>
                                                 </Col>
 
@@ -436,12 +446,13 @@ class Request extends Component {
                                                             style={{width: 20}}
                                                             className="ml-10 mr-10"/></span>Submit</Button>*/}
 
-                                                        <Button className="square ml-10"
-                                                                size={"large"}
-                                                                color="primary"
-                                                                key={'btn'}
-                                                                onClick={() => this.onReview()}
-                                                                disabled={!selectedItem.length}><a><img
+                                                        <Button
+                                                            className="square ml-10"
+                                                            size={"large"}
+                                                            color="primary"
+                                                            key={'btn'}
+                                                            onClick={() => this.onReview()}
+                                                            disabled={!selectedItem.length}><a><img
                                                             src={require('../../images/shopping-cart.png')}
                                                             style={{width: 20}}
                                                             className="ml-10 mr-10"/></a>Review
@@ -466,22 +477,27 @@ class Request extends Component {
                                     <Row>
                                         <Col md={12} sm={12} xs={12}>
                                             <div className='text-right'>
-                                                <Button className="square ml-10"
-                                                        size={"large"}
-                                                        color="primary" onClick={() => this.onSubmit(3)}
-                                                        // disabled={this.isDisabled() || !(this.getUserMapping() || []).length}
+                                                <Button
+                                                    className="square ml-10"
+                                                    size={"large"}
+                                                    color="primary" onClick={() => this.onSubmit(3)}
+                                                    // disabled={this.isDisabled() || !(this.getUserMapping() || []).length}
                                                 >
                                                     <span>
                                                         <img src={require('../../images/enter-arrow.png')} style={{width: 20}} className="ml-10 mr-10"/>
                                                     </span>
                                                     Submit
                                                 </Button>
-                                                <Button className="square ml-10"
-                                                        size={"large"}
-                                                        color="primary"
-                                                        onClick={() => this.setState({current: 2})}><a><img
-                                                    src={require('../../images/multiply.png')}
-                                                    style={{width: 20}} className="ml-10 mr-10"/></a>Cancel</Button>
+                                                <Button
+                                                    className="square ml-10"
+                                                    size={"large"}
+                                                    color="primary"
+                                                    onClick={() => this.setState({current: 2})}
+                                                >
+                                                    <a>
+                                                        <img src={require('../../images/multiply.png')} style={{width: 20}} className="ml-10 mr-10"/>
+                                                    </a>Cancel
+                                                </Button>
                                             </div>
                                         </Col>
                                         <Col md={12} sm={12} xs={12} className="mt-10">
@@ -489,7 +505,7 @@ class Request extends Component {
                                                 <Table
                                                     columns={columns}
                                                     size="medium"
-                                                    rowKey={'userName'}
+                                                    rowKey={'id'}
                                                     className={`user-profile-data no-padding-table`}
                                                     expandedRowRender={this.expandedRowRender}
                                                     expandIcon={this.customExpandIcon}
@@ -511,4 +527,4 @@ class Request extends Component {
 
 }
 
-export default Request
+export default ByUsers
