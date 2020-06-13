@@ -148,4 +148,12 @@ export class ApiService {
   static async getCertificationsList() {
     return await ApiService.getData(`${apiServiceEndPoint}/certification/${getTenantId()}/getCertifications/${getUserName()}`);
   }
+
+  static async getgroupsWorkflow(payload) {
+    return await ApiService.postMethod(`${requestAPIServiceEndPoint}/workflowv1/getgroups`, payload);
+  }
+
+  static async getappsWorkflow(payload) {
+    return await ApiService.postMethod(`${requestAPIServiceEndPoint}/workflowv1/getapps`, payload);
+  }
 }
