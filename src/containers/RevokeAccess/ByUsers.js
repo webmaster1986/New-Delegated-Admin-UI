@@ -6,6 +6,7 @@ import {
     Tabs, message
 } from "antd";
 import clonedeep from "lodash.clonedeep";
+import {get} from 'lodash';
 const {Search} = Input;
 const { TabPane } = Tabs;
 import {ApiService, getUserName} from "../../services/ApiService";
@@ -45,19 +46,14 @@ class ByUsers extends Component {
             userList: [],
             groupList: [],
             selected: [],
-            activeKey: ''
+            activeKey: '',
+            searchUser: '',
+            searchKey: ''
         };
     }
 
     componentDidMount() {
         this.getAllUsers()
-        groupsListArray.forEach(x => {
-            x.prevAction = x.action ? x.action : 'required';
-            x.action = x.action ? x.action : 'required';
-        })
-        this.setState({
-            groupList: groupsListArray
-        })
     }
 
     getAllUsers = async () => {
@@ -86,8 +82,19 @@ class ByUsers extends Component {
                 userList: data || [],
                 activeKey: data && data.length ? data[0].userName : '',
                 isLoading: false,
-            })
+            }, () => this.onSetupGroupData())
         }
+    }
+
+    onSetupGroupData = () => {
+        const groupList = clonedeep(groupsListArray)
+        groupList.forEach(x => {
+            x.prevAction = x.action ? x.action : 'required';
+            x.action = x.action ? x.action : 'required';
+        })
+        this.setState({
+            groupList
+        })
     }
 
     onSidebarChange = () => {
@@ -103,7 +110,7 @@ class ByUsers extends Component {
         }
         let filteredUserData = userList || [];
         filteredUserData = filteredUserData.filter(x => {
-            const name = x.userInfo && `${(x.userInfo.FirstName || '')} ${(x.userInfo.LastName || '')}`;
+            const name = x && x.displayName;
             return name.toLowerCase().includes(searchUser.toLowerCase());
         });
         return filteredUserData;
@@ -111,8 +118,9 @@ class ByUsers extends Component {
 
     onChangeTab = (newActiveKey) => {
         this.setState({
-            activeKey: newActiveKey
-        })
+            activeKey: newActiveKey,
+            selected: []
+        }, () => this.onSetupGroupData())
     }
 
     onNextUser = () => {
@@ -205,12 +213,29 @@ class ByUsers extends Component {
         this.setState({groupList})
     }
 
+    getChangedCount = () => {
+        const { groupList } = this.state;
+        if (!groupList || groupList.length === 0) {
+            return 0;
+        }
+        return groupList.filter(group => {
+            return get(group, 'action') !== get(group, 'prevAction')
+        }).length;
+    }
+
+    onChange = (event) => {
+        this.setState({
+            [event.target.name]: event.target.value,
+        });
+    }
+
     render() {
-        const { isSidebar, userList, activeKey, selected } = this.state;
+        const { isSidebar, userList, activeKey, selected, searchKey, searchUser } = this.state;
         const getInitials = (firstName, lastName) => {
             return `${(firstName || '').length ? firstName.substr(0, 1).toUpperCase() : ''}${(lastName || '').length ? lastName.substr(0, 1).toUpperCase() : ''}`
         };
         const mainRecord = (userList || []).find(x => x.userName === activeKey) || {};
+        const changedCount = this.getChangedCount()
         return (
             <div className="user-detail-page">
                 { !isSidebar ?
@@ -233,10 +258,11 @@ class ByUsers extends Component {
                         </div>
                         <div className="user-search">
                             <Search
+                                name="searchUser"
                                 size="small"
                                 placeholder="Search Name"
-                                // value={searchUser}
-                                onChange={this.onChangeSearchUser}
+                                value={searchUser}
+                                onChange={this.onChange}
                             />
                         </div>
                         <div className="inner-profile">
@@ -327,8 +353,10 @@ class ByUsers extends Component {
                         onUpdateStatus={this.onUpdateStatus}
                         onSelectAll={this.onSelectAll}
                         confirmRevokeSelected={this.confirmRevokeSelected}
+                        onChange={this.onChange}
+                        searchKey={searchKey}
                         selected={selected}
-                        changedCount={0}
+                        changedCount={changedCount}
                         submitData={() => {}}
                     />
                 </div>

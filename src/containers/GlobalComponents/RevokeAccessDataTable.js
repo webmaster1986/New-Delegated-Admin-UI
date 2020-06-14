@@ -38,7 +38,7 @@ class RevokeAccessDataTable extends Component {
       {
         title: 'Group Name',
         render: (record) => {
-            return (<span>
+            return (<span className="ws-nowrap">
               {
                 record.name
               }
@@ -48,7 +48,7 @@ class RevokeAccessDataTable extends Component {
       {
         title: 'Description',
         render: (record) => {
-            return (<span>
+            return (<span className="ws-nowrap">
               {
                 record.description
               }
@@ -113,7 +113,7 @@ class RevokeAccessDataTable extends Component {
           return (
             <div>
               <span
-                className={`mr-10 row-action-btn-a ${action === 'rejected' ? 'text-success' : 'text-initial'}`}
+                className={`mr-10 ws-nowrap row-action-btn-a ${action === 'rejected' ? 'text-success' : 'text-initial'}`}
                 onClick={() => onUpdateStatus(record.id, action === 'rejected' ? 'required' : 'rejected')}>
                                       {action === 'rejected' ? 'Revoked' : 'Revoke'}
                                 </span>
@@ -124,16 +124,16 @@ class RevokeAccessDataTable extends Component {
           )
         }
       },
-      {
-        title: (<div><img src={require('../../images/comment.png')}/></div>),
-        width: 50,
-        align: 'right',
-        render: (record) => {
-          return <span className='cursor-pointer'
-                       onClick={() => onToggleComment(record.mainId, record.entInfo.newComment)}><a><img
-            src={require('../../images/edit.png')} className="size-img"/></a></span>
-        }
-      },
+      // {
+      //   title: (<div><img src={require('../../images/comment.png')}/></div>),
+      //   width: 50,
+      //   align: 'right',
+      //   render: (record) => {
+      //     return <span className='cursor-pointer'
+      //                  onClick={() => onToggleComment(record.mainId, record.entInfo.newComment)}><a><img
+      //       src={require('../../images/edit.png')} className="size-img"/></a></span>
+      //   }
+      // },
     ];
     return (
       <div className='border-1 mt-20' style={{flex: 1}}>
@@ -150,6 +150,7 @@ class RevokeAccessDataTable extends Component {
                   pagination={{pageSize: 25}}
                   className={`user-profile-data no-padding-table`}
                   dataSource={getFilterData()}
+                  scroll={{x: 992}}
                 />
               </div>
             </Col>
