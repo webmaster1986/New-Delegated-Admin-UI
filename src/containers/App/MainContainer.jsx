@@ -8,6 +8,7 @@ const MyUsers = React.lazy(() => import('../MyUsers'));
 const GrantAccessByUsers = React.lazy(() => import('../GrantAccess/ByUsers'));
 const GrantAccessByGroups = React.lazy(() => import('../GrantAccess/ByGroups'));
 const RevokeAccessByUsers = React.lazy(() => import('../RevokeAccess/ByUsers'));
+const RevokeAccessByGroups = React.lazy(() => import('../RevokeAccess/ByGroups'));
 
 const loading = () => <div className="load">
   <div className="load__icon-wrap text-center ">
@@ -35,7 +36,7 @@ const wrappedRoutes = () => (
           <Route path="/:clientId/grant-access-by-users" component={GrantAccessByUsers} />
           <Route path="/:clientId/grant-access-by-groups" component={GrantAccessByGroups} />
           <Route path="/:clientId/revoke-access-by-users" component={RevokeAccessByUsers} />
-          <Route path="/:clientId/revoke-access-by-groups" component={RevokeAccessByUsers} />
+          <Route path="/:clientId/revoke-access-by-groups" component={RevokeAccessByGroups} />
           <Route path="/:clientId/manage-users" component={MyUsers} />
           <Route path="/:clientId/dashboard" component={Dashboard} />
           <Route path="/:clientId/" component={Dashboard} />

@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import {Card, CardBody, Col, Row, CardHeader} from "reactstrap";
 import {
     Input,
     Icon,
@@ -35,7 +34,7 @@ const groupsListArray = [
     { name: 'Group 11', description: 'Group 11 description', id: 10 },
 ]
 
-class ByUsers extends Component {
+class ByGroups extends Component {
     _apiService = new ApiService();
 
     constructor(props) {
@@ -47,13 +46,26 @@ class ByUsers extends Component {
             groupList: [],
             selected: [],
             activeKey: '',
-            searchUser: '',
+            searchGroup: '',
             searchKey: ''
         };
     }
 
     componentDidMount() {
-        this.getAllUsers()
+        this.onSetupGroupData()
+    }
+
+    onSetupGroupData = () => {
+        const groupList = clonedeep(groupsListArray)
+        groupList.forEach((x, i) => {
+            x.key = i;
+            x.id = i;
+            x.color = getColor(i)
+        })
+        this.setState({
+            groupList,
+            activeKey: groupList && groupList.length ? groupList[0].name : '',
+        }, () => this.getAllUsers())
     }
 
     getAllUsers = async () => {
@@ -76,25 +88,14 @@ class ByUsers extends Component {
             (data || []).forEach((x, i) => {
                 x.key = i;
                 x.id = i;
-                x.color = getColor(i)
+                x.prevAction = x.action ? x.action : 'required';
+                x.action = x.action ? x.action : 'required';
             })
             this.setState({
                 userList: data || [],
-                activeKey: data && data.length ? data[0].userName : '',
                 isLoading: false,
-            }, () => this.onSetupGroupData())
+            })
         }
-    }
-
-    onSetupGroupData = () => {
-        const groupList = clonedeep(groupsListArray)
-        groupList.forEach(x => {
-            x.prevAction = x.action ? x.action : 'required';
-            x.action = x.action ? x.action : 'required';
-        })
-        this.setState({
-            groupList
-        })
     }
 
     onSidebarChange = () => {
@@ -103,55 +104,56 @@ class ByUsers extends Component {
         })
     }
 
-    getFilteredUsers = () => {
-        const {userList, searchUser} = this.state;
-        if (!searchUser) {
-            return userList;
+    getFilteredGroups = () => {
+        const {groupList, searchGroup} = this.state;
+        if (!searchGroup) {
+            return groupList;
         }
-        let filteredUserData = userList || [];
-        filteredUserData = filteredUserData.filter(x => {
-            const name = x && x.displayName;
-            return name.toLowerCase().includes(searchUser.toLowerCase());
+        let filteredGroupData = groupList || [];
+        filteredGroupData = filteredGroupData.filter(x => {
+            const name = x && x.name;
+            return name.toLowerCase().includes(searchGroup.toLowerCase());
         });
-        return filteredUserData;
+        return filteredGroupData;
     }
 
     onChangeTab = (newActiveKey) => {
         this.setState({
             activeKey: newActiveKey,
             selected: []
-        }, () => this.onSetupGroupData())
+        }, () => this.getAllUsers())
     }
 
     onNextUser = () => {
-        const {userList, activeKey} = this.state;
-        const mainRecordIndex = userList.findIndex(x => x.userName === activeKey);
-        if (mainRecordIndex < userList.length - 1) {
-            const nextUser = userList[mainRecordIndex + 1];
-            this.onChangeTab(nextUser.userName)
+        const {groupList, activeKey} = this.state;
+        const mainRecordIndex = groupList.findIndex(x => x.name === activeKey);
+        if (mainRecordIndex < groupList.length - 1) {
+            const nextUser = groupList[mainRecordIndex + 1];
+            this.onChangeTab(nextUser.name)
         }
     }
 
     onPrevUser = () => {
-        const {userList, activeKey} = this.state;
-        const mainRecordIndex = userList.findIndex(x => x.userName === activeKey);
+        const {groupList, activeKey} = this.state;
+        const mainRecordIndex = groupList.findIndex(x => x.name === activeKey);
         if (mainRecordIndex) {
-            const prevUser = userList[mainRecordIndex - 1];
-            this.onChangeTab(prevUser.userName)
+            const prevUser = groupList[mainRecordIndex - 1];
+            this.onChangeTab(prevUser.name)
         }
     }
 
     getFilterData = () => {
-        const { filter, searchKey, groupList } = this.state;
+        const { filter, searchKey, userList } = this.state;
         if (!filter && !searchKey) {
-            return groupList;
+            return userList;
         }
 
-        let filteredData = clonedeep(groupList);
+        let filteredData = clonedeep(userList);
 
         if(searchKey){
             filteredData = filteredData.filter(x => {
-                return (x.name.toLowerCase().includes(searchKey.toLowerCase()) || x.description.toLowerCase().includes(searchKey.toLowerCase()))
+                return ((x.givenName || "").toLowerCase().includes(searchKey.toLowerCase()) || (x.familyName || "").toLowerCase().includes(searchKey.toLowerCase()) || (x.userName || "").toLowerCase().includes(searchKey.toLowerCase()) ||
+                    (x.email || "").toLowerCase().includes(searchKey.toLowerCase()) || (x.department || "").toLowerCase().includes(searchKey.toLowerCase()))
             });
         }
 
@@ -171,28 +173,28 @@ class ByUsers extends Component {
     }
 
     undoDecision = (entId) => {
-        const { groupList } = this.state;
-        if (groupList[entId]) {
-            groupList[entId].action = groupList[entId].prevAction;
+        const { userList } = this.state;
+        if (userList[entId]) {
+            userList[entId].action = userList[entId].prevAction;
         }
         this.setState({
-            groupList
+            userList
         });
     }
 
     onUpdateStatus = (index, action) => {
-        const { groupList } = this.state;
-        const currentAction = groupList[index].action;
-        groupList[index].action = (currentAction === action ? 'required' : action);
+        const { userList } = this.state;
+        const currentAction = userList[index].action;
+        userList[index].action = (currentAction === action ? 'required' : action);
         this.setState({
-            groupList
+            userList
         });
     }
 
     onSelectAll = (e) => {
-        let { groupList, selected } = this.state;
+        let { userList, selected } = this.state;
         if (e.target.checked) {
-            selected = groupList.map((x,i) => i);
+            selected = userList.map((x,i) => i);
             this.setState({
                 selected,
             })
@@ -204,21 +206,21 @@ class ByUsers extends Component {
     }
 
     confirmRevokeSelected = () => {
-        const {selected, groupList} = this.state;
+        const {selected, userList} = this.state;
         if (selected.length) {
             selected.forEach((x) => {
-                groupList[x].action = groupList[x].action === 'required' ? 'rejected' : groupList[x].action;
+                userList[x].action = userList[x].action === 'required' ? 'rejected' : userList[x].action;
             });
         }
-        this.setState({groupList})
+        this.setState({userList})
     }
 
     getChangedCount = () => {
-        const { groupList } = this.state;
-        if (!groupList || groupList.length === 0) {
+        const { userList } = this.state;
+        if (!userList || userList.length === 0) {
             return 0;
         }
-        return groupList.filter(group => {
+        return userList.filter(group => {
             return get(group, 'action') !== get(group, 'prevAction')
         }).length;
     }
@@ -230,11 +232,14 @@ class ByUsers extends Component {
     }
 
     render() {
-        const { isSidebar, userList, activeKey, selected, searchKey, searchUser } = this.state;
+        const { isSidebar, userList, groupList, activeKey, selected, searchKey, searchGroup } = this.state;
         const getInitials = (firstName, lastName) => {
             return `${(firstName || '').length ? firstName.substr(0, 1).toUpperCase() : ''}${(lastName || '').length ? lastName.substr(0, 1).toUpperCase() : ''}`
         };
-        const mainRecord = (userList || []).find(x => x.userName === activeKey) || {};
+        const mainRecord = groupList && groupList.length ? (groupList || []).find(x => x.name === activeKey) : {};
+        const array = mainRecord && mainRecord.name && mainRecord.name.length ? (mainRecord.name || []).split(" ") : []
+        const firstName = array && array.length && array[0] || ""
+        const lastName = array && array.length && array[1] || ""
         const changedCount = this.getChangedCount()
         return (
             <div className="user-detail-page">
@@ -258,10 +263,10 @@ class ByUsers extends Component {
                         </div>
                         <div className="user-search">
                             <Search
-                                name="searchUser"
+                                name="searchGroup"
                                 size="small"
                                 placeholder="Search Name"
-                                value={searchUser}
+                                value={searchGroup}
                                 onChange={this.onChange}
                             />
                         </div>
@@ -270,9 +275,9 @@ class ByUsers extends Component {
                             <Icon type="right" onClick={this.onNextUser} className="profile-nav-arrow right-arrow"/>
                             <div className="text-center overflow-hidden">
                                 <div className="initial-name-inner-profile"
-                                     style={{background: mainRecord && mainRecord.color || 'red'}}>{(mainRecord && mainRecord.givenName || 'A').substr(0, 1)}{(mainRecord && mainRecord.familyName || 'B').substr(0, 1)}</div>
+                                     style={{background: mainRecord && mainRecord.color || 'red'}}>{(firstName || 'A').substr(0, 1)}{(lastName || 'B').substr(0, 1)}</div>
                                 <div
-                                    className="UName">{mainRecord && mainRecord.givenName} {mainRecord && mainRecord.familyName}</div>
+                                    className="UName">{firstName} {lastName}</div>
                                 <div
                                     className="UDesignation">{mainRecord && mainRecord.userInfo && mainRecord.userInfo.Title}</div>
                                 <div
@@ -302,7 +307,7 @@ class ByUsers extends Component {
                         </div>
                         <div>
                             {
-                                (this.getFilteredUsers() || []).length ?
+                                (this.getFilteredGroups() || []).length ?
                                     <Tabs
                                         activeKey={activeKey}
                                         tabPosition={"right"}
@@ -310,23 +315,24 @@ class ByUsers extends Component {
                                         onChange={this.onChangeTab}
                                     >
                                         {
-                                            (this.getFilteredUsers() || []).map((item) => {
-                                                const firstName = item && item.givenName
-                                                const lastName = item && item.familyName
+                                            (this.getFilteredGroups() || []).map((item) => {
+                                                const array = item.name.split(" ")
+                                                const first = array && array.length && array[0] || ""
+                                                const last = array && array.length && array[1] || ""
                                                 return (
                                                     <TabPane
                                                         tab={
                                                             <div className="user-list-item">
                                                                <span className="initialName mr-10"
                                                                      style={{background: item.color || 'red'}}>
-                                                                   {getInitials(firstName, lastName)}
+                                                                   {getInitials(first, last)}
                                                                </span>
                                                                <span className="initial-name">
-                                                                    {firstName}{' '}{lastName}
+                                                                    {first}{' '}{last}
                                                                </span>
                                                             </div>
                                                         }
-                                                        key={item.userName}
+                                                        key={item.name}
                                                         type="card"
                                                     >
                                                     </TabPane>
@@ -335,7 +341,7 @@ class ByUsers extends Component {
                                         }
                                     </Tabs> :
                                     <div className="no-user-found color-white text-center mt-10">
-                                        No Users Found
+                                        No Groups Found
                                     </div>
                             }
                         </div>
@@ -344,9 +350,9 @@ class ByUsers extends Component {
 
                 <div className="dashboard overflow">
                     <RevokeAccessDataTable
-                        dataType={"user"}
-                        userList={userList}
-                        groupList={this.state.groupList}
+                        dataType={"group"}
+                        userList={groupList}
+                        groupList={this.state.userList}
                         activeKey={activeKey}
                         getFilterData={this.getFilterData}
                         onCheckBoxChange={this.onCheckBoxChange}
@@ -367,4 +373,4 @@ class ByUsers extends Component {
 
 }
 
-export default ByUsers
+export default ByGroups
