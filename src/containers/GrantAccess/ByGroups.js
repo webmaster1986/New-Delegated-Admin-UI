@@ -6,14 +6,18 @@ import {
     Button,
     Input,
     Table,
-    Icon
+    Icon,
+    Tabs,
+    Radio
 } from "antd";
 const {Search} = Input;
+const {TabPane} = Tabs;
 import {ApiService, getUserName} from "../../services/ApiService";
+import CopyGroupsModal from "./CopyGroupsModal"
+import TableTransfer from "../GlobalComponents/TableTransfer";
+import clonedeep from "lodash.clonedeep";
 import '../GlobalComponents/Access.scss'
 import '../Home/Home.scss'
-
-import TableTransfer from "../GlobalComponents/TableTransfer";
 
 const groupsListArray = [
     { name: 'Group 1', description: 'Group 1 description', id: 0, key: 0 },
@@ -38,10 +42,14 @@ class ByGroups extends Component {
         this.state = {
             current: 1,
             isLoading: false,
+            copyGroupModal: false,
             userList: [],
             selectedGroupsKeys: [],
             selectedGroups: [],
             selectedItem: [],
+            search: '',
+            selectedAdvisor: '',
+            searchAdvisorGroup: '',
             groupsList: groupsListArray,
         };
     }
@@ -100,8 +108,8 @@ class ByGroups extends Component {
         });
     };
 
-    getGroupsColumns = () => {
-        return [
+    getGroupsColumns = (isSelect) => {
+        const columns = [
             {
                 title: 'Name',
                 render: (record) => {
@@ -115,6 +123,21 @@ class ByGroups extends Component {
                 },
             }
         ]
+        if(!isSelect){
+            columns.unshift({
+                title: '',
+                dataIndex: 'id',
+                width: '5%',
+                render: (record, data) => {
+                    return (
+                        <Radio.Group name="selectedUser"  onChange={this.onChange} value={this.state.selectedUser}>
+                            <Radio value={data.name} />
+                        </Radio.Group>
+                    )
+                }
+            })
+        }
+        return columns
     }
 
     filterOption = (inputValue, option) => {
@@ -128,8 +151,26 @@ class ByGroups extends Component {
         });
     }
 
-    getFiltered = () => {
-        return this.state.userList
+    getFiltered = (isRecommand) => {
+        const { search, userList } = this.state
+        let arrayList = clonedeep(userList) || [];
+        if(!search) {
+            if(!isRecommand) {
+                arrayList = arrayList.slice(0, 5)
+            }
+            return arrayList
+        }
+
+        arrayList = arrayList.filter(x => {
+            const displayName = x && x.displayName;
+            const userName = x && x.userName;
+            const email = x && x.email;
+            return displayName.toLowerCase().includes(search.toLowerCase()) || userName.toLowerCase().includes(search.toLowerCase()) || email.toLowerCase().includes(search.toLowerCase());
+        });
+        if(!isRecommand) {
+            arrayList = arrayList.slice(0, 5)
+        }
+        return arrayList || []
     }
 
     addToCart = (record) => {
@@ -268,8 +309,43 @@ class ByGroups extends Component {
         })
     }
 
+    onChange = (event) => {
+        this.setState({
+            [event.target.name]: event.target.value
+        })
+    }
+
+    onCopyGroupModal = () => {
+        this.setState({
+            copyGroupModal: !this.state.copyGroupModal
+        })
+    }
+
+    onTabChange = (key) => {
+        if(key === "2"){
+            this.onChange({target: {name: 'selectedAdvisor', value: 1}})
+        }
+    }
+
+    getFilteredGroupsList = () => {
+        const { groupsList, searchAdvisorGroup } = this.state;
+        if(!searchAdvisorGroup){
+            return groupsList
+        }
+
+        let filteredData = clonedeep(groupsList);
+
+        if(searchAdvisorGroup){
+            filteredData = filteredData.filter(x => {
+                return ['name'].some(y =>  (x[y] || '').toLowerCase().includes(searchAdvisorGroup.toLowerCase()))
+            });
+        }
+
+        return filteredData;
+    }
+
     render() {
-        const { isLoading, userList, selectedGroupsKeys, current, selectedItem, selectedGroups, groupsList } = this.state;
+        const { isLoading, search, selectedGroupsKeys, current, selectedItem, selectedGroups, groupsList, copyGroupModal, selectedAdvisor, searchAdvisorGroup } = this.state;
 
         const groups = [];
         groupsList.forEach(group => {
@@ -316,7 +392,7 @@ class ByGroups extends Component {
 
         return (
             <div className="dashboard request">
-
+                { copyGroupModal ? <CopyGroupsModal groupsList={groupsList} onClose={this.onCopyGroupModal}/> : null }
                 <Row>
                     <Col>
                         <Card>
@@ -344,22 +420,27 @@ class ByGroups extends Component {
                                                     <Col md="12" sm="12">
                                                         {
                                                             current === 1 ?
-                                                                <TableTransfer
-                                                                    className="mt-20"
-                                                                    dataSource={groupsList || []}
-                                                                    targetKeys={selectedGroupsKeys}
-                                                                    showSearch
-                                                                    listStyle={{
-                                                                        width: 525,
-                                                                        // height: 300,
-                                                                        overflowY: 'auto'
-                                                                    }}
-                                                                    operations={['Select', 'Unselect']}
-                                                                    onChange={this.handleGroupChange}
-                                                                    filterOption={this.filterOption}
-                                                                    leftColumns={this.getGroupsColumns(true)}
-                                                                    rightColumns={this.getGroupsColumns(true)}
-                                                                /> : null
+                                                                <>
+                                                                    <div className="text-right">
+                                                                        <Button color="primary" className="copy-button" onClick={this.onCopyGroupModal}>Copy Groups from a User</Button>
+                                                                    </div>
+                                                                    <TableTransfer
+                                                                        className="mt-20"
+                                                                        dataSource={groupsList || []}
+                                                                        targetKeys={selectedGroupsKeys}
+                                                                        showSearch
+                                                                        listStyle={{
+                                                                            width: 525,
+                                                                            // height: 300,
+                                                                            overflowY: 'auto'
+                                                                        }}
+                                                                        operations={['Select', 'Unselect']}
+                                                                        onChange={this.handleGroupChange}
+                                                                        filterOption={this.filterOption}
+                                                                        leftColumns={this.getGroupsColumns(true)}
+                                                                        rightColumns={this.getGroupsColumns(true)}
+                                                                    />
+                                                                </> : null
                                                         }
                                                     </Col>
                                                 </Row>
@@ -404,10 +485,12 @@ class ByGroups extends Component {
 
                                             <Row className="mt-10">
                                                 <Col md={3} sm={12} xs={12}>
-                                                    {/*<Search
-                                                        placeholder="Search Catalog" value={searchUser}
-                                                        name="searchUser" onChange={this.onChange}
-                                                    />*/}
+                                                    <Search
+                                                        placeholder="Search User"
+                                                        value={search}
+                                                        name="search"
+                                                        onChange={this.onChange}
+                                                    />
                                                 </Col>
                                                 <Col md={3} sm={12} xs={12}>
                                                     {/*<Select
@@ -453,14 +536,55 @@ class ByGroups extends Component {
                                                 </Col>
                                             </Row>
 
-                                            <Table
-                                                dataSource={this.getFiltered()}
-                                                className="mt-20 main-table"
-                                                size="small"
-                                                rowKey={"id"}
-                                                columns={this.getColumns()}
-                                                showHeader={false}
-                                            />
+                                            <Tabs defaultActiveKey="1" onChange={this.onTabChange}>
+                                                <TabPane tab="Standard" key="1">
+                                                    <Table
+                                                        dataSource={this.getFiltered(true)}
+                                                        className="mt-20 main-table"
+                                                        size="small"
+                                                        rowKey={"id"}
+                                                        columns={this.getColumns()}
+                                                        showHeader={false}
+                                                    />
+                                                </TabPane>
+                                                <TabPane tab="Access Advisor" key="2">
+                                                    <Radio.Group name="selectedAdvisor" onChange={this.onChange} value={selectedAdvisor}>
+                                                        <Radio.Button value={1}>Recommendation</Radio.Button>
+                                                        <Radio.Button value={2}>Mirror access</Radio.Button>
+                                                    </Radio.Group>
+                                                    {
+                                                        selectedAdvisor === 2 ?
+                                                            <div className="mt-20">
+                                                                <Search
+                                                                    className="w-260"
+                                                                    placeholder="Search Group"
+                                                                    value={searchAdvisorGroup}
+                                                                    name="searchAdvisorGroup"
+                                                                    onChange={this.onChange}
+                                                                />
+                                                                <div className="mt-20" style={{overflowY: 'auto', height: 500}}>
+                                                                    <Table
+                                                                        className="mr-10"
+                                                                        columns={this.getGroupsColumns(false)}
+                                                                        rowKey={"name"}
+                                                                        size="small"
+                                                                        dataSource={this.getFilteredGroupsList()}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            :
+                                                            <Table
+                                                                dataSource={this.getFiltered(false)}
+                                                                className="mt-20 main-table"
+                                                                size="small"
+                                                                rowKey={"id"}
+                                                                columns={this.getColumns()}
+                                                                showHeader={false}
+                                                            />
+                                                    }
+                                                </TabPane>
+                                            </Tabs>
+
                                         </Col>
                                     </Row>
                                 }

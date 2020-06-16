@@ -1,15 +1,20 @@
 import React, {Component} from 'react';
 import {Card, CardBody, Col, Row, CardHeader} from "reactstrap";
+import clonedeep from "lodash.clonedeep";
 import {
     message,
     Spin,
     Button,
     Input,
     Table,
-    Icon
+    Icon,
+    Tabs,
+    Radio
 } from "antd";
 const {Search} = Input;
+const {TabPane} = Tabs;
 import {ApiService, getUserName} from "../../services/ApiService";
+import CopyUsersModal from "./CopyUsersModal"
 import '../GlobalComponents/Access.scss'
 import '../Home/Home.scss'
 
@@ -38,10 +43,13 @@ class ByUsers extends Component {
         this.state = {
             current: 1,
             isLoading: false,
+            copyUserModal: false,
             userList: [],
             selectedUsersKeys: [],
             selectedUsers: [],
             selectedItem: [],
+            search: '',
+            selectedAdvisor: '',
             groupsList: groupsListArray,
         };
     }
@@ -100,8 +108,8 @@ class ByUsers extends Component {
         });
     };
 
-    getUsersColumns = () => {
-        return [
+    getUsersColumns = (isSelect) => {
+        const columns = [
             {
                 title: 'User Name',
                 render: (record) => {
@@ -131,6 +139,21 @@ class ByUsers extends Component {
                 width: '20%'
             }
         ]
+        if(!isSelect){
+            columns.unshift({
+                title: '',
+                dataIndex: 'id',
+                width: '5%',
+                render: (record, data) => {
+                    return (
+                        <Radio.Group name="selectedUser"  onChange={this.onChange} value={this.state.selectedUser}>
+                            <Radio value={data.displayName} />
+                        </Radio.Group>
+                    )
+                }
+            })
+        }
+        return columns
     }
 
     filterOption = (inputValue, option) => {
@@ -144,8 +167,25 @@ class ByUsers extends Component {
         });
     }
 
-    getFiltered = () => {
-        return this.state.groupsList
+    getFiltered = (isRecommand) => {
+        const { search, groupsList } = this.state
+        let arrayList = clonedeep(groupsList) || [];
+        if(!search) {
+            if(!isRecommand) {
+                arrayList = arrayList.slice(0, 5)
+            }
+            return arrayList
+        }
+
+        arrayList = arrayList.filter(x => {
+            const name = x && x.name;
+            const description = x && x.description;
+            return name.toLowerCase().includes(search.toLowerCase()) || description.toLowerCase().includes(search.toLowerCase());
+        });
+        if(!isRecommand) {
+            arrayList = arrayList.slice(0, 5)
+        }
+        return arrayList || []
     }
 
     addToCart = (record) => {
@@ -277,8 +317,43 @@ class ByUsers extends Component {
         })
     }
 
+    onChange = (event) => {
+        this.setState({
+            [event.target.name]: event.target.value
+        })
+    }
+
+    onCopyUserModal = () => {
+        this.setState({
+            copyUserModal: !this.state.copyUserModal
+        })
+    }
+
+    onTabChange = (key) => {
+        if(key === "2"){
+            this.onChange({target: {name: 'selectedAdvisor', value: 1}})
+        }
+    }
+
+    getFilteredUsersList = () => {
+        const { userList, searchAdvisorUser } = this.state;
+        if(!searchAdvisorUser){
+            return userList
+        }
+
+        let filteredData = clonedeep(userList);
+
+        if(searchAdvisorUser){
+            filteredData = userList.filter(x => {
+                return ['displayName'].some(y =>  (x[y] || '').toLowerCase().includes(searchAdvisorUser.toLowerCase()))
+            });
+        }
+
+        return filteredData;
+    }
+
     render() {
-        const { isLoading, userList, selectedUsersKeys, current, selectedItem, selectedUsers } = this.state;
+        const { isLoading, userList, selectedUsersKeys, current, selectedItem, selectedUsers, search, copyUserModal, selectedAdvisor, searchAdvisorUser } = this.state;
 
         const users = [];
         userList.forEach(user => {
@@ -324,7 +399,7 @@ class ByUsers extends Component {
 
         return (
             <div className="dashboard request">
-
+                { copyUserModal ? <CopyUsersModal userList={userList} onClose={this.onCopyUserModal}/> : null }
                 <Row>
                     <Col>
                         <Card>
@@ -352,22 +427,27 @@ class ByUsers extends Component {
                                                     <Col md="12" sm="12">
                                                         {
                                                             current === 1 ?
-                                                                <TableTransfer
-                                                                    className="mt-20"
-                                                                    dataSource={userList || []}
-                                                                    targetKeys={selectedUsersKeys}
-                                                                    showSearch
-                                                                    listStyle={{
-                                                                        width: 525,
-                                                                        // height: 300,
-                                                                        overflowY: 'auto'
-                                                                    }}
-                                                                    operations={['Select', 'Unselect']}
-                                                                    onChange={this.handleUserChange}
-                                                                    filterOption={this.filterOption}
-                                                                    leftColumns={this.getUsersColumns(true)}
-                                                                    rightColumns={this.getUsersColumns(true)}
-                                                                /> : null
+                                                                <>
+                                                                    <div className="text-right">
+                                                                        <Button color="primary" className="copy-button" onClick={this.onCopyUserModal}>Copy Users from another Group</Button>
+                                                                    </div>
+                                                                    <TableTransfer
+                                                                        className="mt-20"
+                                                                        dataSource={userList || []}
+                                                                        targetKeys={selectedUsersKeys}
+                                                                        showSearch
+                                                                        listStyle={{
+                                                                            width: 525,
+                                                                            // height: 300,
+                                                                            overflowY: 'auto'
+                                                                        }}
+                                                                        operations={['Select', 'Unselect']}
+                                                                        onChange={this.handleUserChange}
+                                                                        filterOption={this.filterOption}
+                                                                        leftColumns={this.getUsersColumns(true)}
+                                                                        rightColumns={this.getUsersColumns(true)}
+                                                                    />
+                                                                </> : null
                                                         }
                                                     </Col>
                                                 </Row>
@@ -412,28 +492,14 @@ class ByUsers extends Component {
 
                                             <Row className="mt-10">
                                                 <Col md={3} sm={12} xs={12}>
-                                                    {/*<Search
-                                                        placeholder="Search Catalog" value={searchUser}
-                                                        name="searchUser" onChange={this.onChange}
-                                                    />*/}
+                                                    <Search
+                                                        placeholder="Search Group"
+                                                        value={search}
+                                                        name="search"
+                                                        onChange={this.onChange}
+                                                    />
                                                 </Col>
                                                 <Col md={3} sm={12} xs={12}>
-                                                    {/*<Select
-                                                        style={{width: "100%"}}
-                                                        placeholder="Select Catalog Type"
-                                                        value={catalogType}
-                                                        name="catalogType"
-                                                        size="small"
-                                                        onChange={this.onSelectChange}
-
-                                                    >
-                                                        <option value=''>All
-                                                        </option>
-                                                        <option value='Group'>Group
-                                                        </option>
-                                                        <option value='Application'>Application
-                                                        </option>
-                                                    </Select>*/}
                                                 </Col>
                                                 <Col md={6} sm={12} xs={12}>
                                                     <div className='text-right'>
@@ -461,14 +527,56 @@ class ByUsers extends Component {
                                                 </Col>
                                             </Row>
 
-                                            <Table
-                                                dataSource={this.getFiltered()}
-                                                className="mt-20 main-table"
-                                                size="small"
-                                                rowKey={"id"}
-                                                columns={this.getColumns()}
-                                                showHeader={false}
-                                            />
+                                            <Tabs defaultActiveKey="1" onChange={this.onTabChange}>
+                                                <TabPane tab="Standard" key="1">
+                                                    <Table
+                                                        dataSource={this.getFiltered(true)}
+                                                        className="mt-20 main-table"
+                                                        size="small"
+                                                        rowKey={"id"}
+                                                        columns={this.getColumns()}
+                                                        showHeader={false}
+                                                    />
+                                                </TabPane>
+                                                <TabPane tab="Access Advisor" key="2">
+                                                    <Radio.Group name="selectedAdvisor" onChange={this.onChange} value={selectedAdvisor}>
+                                                        <Radio.Button value={1}>Recommendation</Radio.Button>
+                                                        <Radio.Button value={2}>Mirror access</Radio.Button>
+                                                    </Radio.Group>
+                                                    {
+                                                        selectedAdvisor === 2 ?
+                                                            <div className="mt-20">
+                                                                <Search
+                                                                    className="w-260"
+                                                                    placeholder="Search Users"
+                                                                    value={searchAdvisorUser}
+                                                                    name="searchAdvisorUser"
+                                                                    onChange={this.onChange}
+                                                                />
+                                                                <div className="mt-20" style={{overflowY: 'auto', height: 500}}>
+                                                                    <Table
+                                                                        className="mr-10"
+                                                                        columns={this.getUsersColumns(false)}
+                                                                        rowKey={"userName"}
+                                                                        size="small"
+                                                                        // loading={this.state.isLoadingUsers}
+                                                                        dataSource={(this.getFilteredUsersList() || [])}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            :
+                                                            <Table
+                                                                dataSource={this.getFiltered(false)}
+                                                                className="mt-20 main-table"
+                                                                size="small"
+                                                                rowKey={"id"}
+                                                                columns={this.getColumns()}
+                                                                showHeader={false}
+                                                            />
+                                                    }
+                                                </TabPane>
+                                            </Tabs>
+
                                         </Col>
                                     </Row>
                                 }

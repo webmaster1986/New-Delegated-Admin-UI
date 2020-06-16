@@ -83,7 +83,7 @@ class DirectReports extends Component {
     return(
       <div>
         <Card
-          title="Direct Reports"
+          title="Manage Users"
           headStyle={this.props.customPanelStyle('#46be8a')}
           style={{
             height: '100%',

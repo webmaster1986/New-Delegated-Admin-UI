@@ -49,122 +49,35 @@ class PendingSection extends Component {
   }
 
   componentDidMount() {
-    this.getMyRequestList()
-    this.getMyApprovalList("request")
+    this.getCertificationsList(1)
   }
 
-  getMyRequestList = async () => {
+  getCertificationsList = async () => {
     this.setState({
       isLoading: true
-    })
-
-    const payload = {
-      requestedBy: getUserName()
-    }
-    const data = await ApiService.getRequestsTasks(payload);
+    });
+    const data = await ApiService.getCertificationsList();
     if (!data || data.error) {
       this.setState({
         isLoading: false
       });
       return message.error('something is wrong! please try again');
     } else {
-
-      (data || []).forEach(x => {
-        x.entityName = x.entity.entityName;
-        x.entityType = x.entity.entityType;
-        if (x.status === 'Approved') {
-          x.daysOpen = ''
-        } else {
-          const a = moment();
-          const b = moment(x.requestedOn);
-          x.daysOpen = a.diff(b, 'days') // 1
-        }
-      })
-
       this.setState({
-        pendingRequests: (data || []),
+        pendingCertifications: data || [],
         isLoading: false
       })
     }
-  }
 
-  getMyApprovalList = async (key) => {
-    if (!key) {
-      key = 'users';
-    }
-
-    this.setState({
-      isLoading: true,
-      isSidebarLoading: true,
-      selectedRequests: [],
-    });
-    const members = []
-
-    const body = {
-      userName: getUserName(),
-      managerRequired:""
-    }
-
-    const userData = await ApiService.getUsersWorkflow(body)
-
-    let payload = {}
-    if(userData && userData.length) {
-      payload = {
-        managerID: userData[0].id
-      }
-    }
-
-    let data = await this._apiService.getRequests(payload);
-    if(!data || data.error){
-      this.setState({
-        isLoading: false,
-        isSidebarLoading: false
-      });
-      return message.error('something is wrong! please try again');
-    } else {
-      data = (data || []).map(x => {
-        return {
-          ...x,
-          entityID: x.entity.entityID,
-          entityName: x.entity.entityName,
-          entityType: x.entity.entityType,
-          dummyId: 108,
-          action: x.status && x.status !== 'Submitted' ? x.status : 'Add'
-        }
-      });
-      (data || []).forEach(obj => {
-        if (!((members || []).some(mem => mem.name === obj.dummyId))) {
-          members.push({
-            name: obj.dummyId,
-            displayName: obj.requestName || "Request",
-            id: (members.length + 1),
-            color: getColor(members.length)
-          })
-        }
-      });
-      let firstUserName = this.state.activeKey || (members.length > 0 ? members[0].name : '');
-
-      let keyFilter = key === 'request' ? 'dummyId' : key === 'entity' ? 'entityID' : 'requestedForID';
-      const newApps = [];
-      data.filter(x => x[keyFilter] === firstUserName).forEach((obj) => {
-        obj.prevAction = obj.action ? obj.action : 'Add';
-        obj.action = obj.action ? obj.action : 'Add';
-        newApps.push(obj);
-      });
-      this.setState({
-        pendingApprovals: (newApps || []).reverse(),
-      });
-
-    }
   }
 
   render() {
     const {clientId} = this.props
-    const {pendingApprovals, pendingRequests} = this.state
+    const {pendingApprovals, pendingRequests, pendingCertifications} = this.state
     return (
       <div>
         <Row>
-          <Col className="mb-10" md={12} lg={6}>
+          <Col className="mb-10" xs={12} md={6} lg={4}>
             <Card
               title={<Link to={`/${clientId}/request/request-list`} style={{color: white}}>Recent Grants</Link>}
               extra={<div className="total-digit">{pendingRequests.length || 0}</div>}
@@ -208,7 +121,7 @@ class PendingSection extends Component {
               }
             </Card>
           </Col>
-          <Col className="mb-10" md={12} lg={6}>
+          <Col className="mb-10" xs={12} md={6} lg={4}>
             <Card
                 title={<Link to={`/${clientId}/requests`} style={{color: white}}>Recent Revokes</Link>}
                 extra={<div className="total-digit">{pendingApprovals.length || 0}</div>}
@@ -264,6 +177,55 @@ class PendingSection extends Component {
                       <Link to={`/${clientId}/requests`}>More</Link>
                     </div>
                     : null
+              }
+            </Card>
+          </Col>
+          <Col className="mb-10" xs={12} md={6} lg={4}>
+            <Card
+              title={<Link to={`/${clientId}/certification`} style={{color: white}}>My Certifications</Link>}
+              extra={<div className="total-digit">{pendingCertifications.length || 0}</div>}
+              headStyle={customPanelStyle(green)}
+            >
+              {
+                pendingCertifications.map((item, index)=> {
+                  const { certificationId, campaignId, reviewerCertificationInfo, reviewerCertificateActionInfo } = item
+                  let status = ""
+                  if(reviewerCertificateActionInfo) {
+                    status = reviewerCertificateActionInfo.percentageCompleted === 0 ? "New"
+                      : reviewerCertificateActionInfo.percentageCompleted === 100 ? "Completed"
+                        : "In Progress"
+                  }
+                  if(index > 1) return;
+                  return (
+                    <div key={campaignId}>
+                      <Row>
+                        <Col md={12} lg={12}>
+                          <h4>
+                            <b>{reviewerCertificationInfo.certificationName || ""}</b>
+                          </h4>
+                          <Tag className="mt-3" color={`${status === "New" ? "blue" : status === "Completed" ? "green" : "cyan" }`}>{status}</Tag>
+                          <div className="mt-10">
+                            <h5 className="mt-5"><b>Certification ID: </b>{certificationId || ""}</h5>
+                            <h5 className="mt-7"><b>Type: </b>{reviewerCertificationInfo.certificationType || ""}</h5>
+                            <h5 className="mt-5"><b>Date Created: </b>{moment(reviewerCertificationInfo.certificationCreatedOn).format("MM-DD-YYYY, h:mm:ss a")}</h5>
+                          </div>
+                          <div className="mt-10">
+                            <h5 className="mt-5"><b>Progress:</b></h5>
+                            <Progress format={() => ""} percent={reviewerCertificateActionInfo.percentageCompleted || 0} />
+                          </div>
+                        </Col>
+                      </Row>
+                      <Divider/>
+                    </div>
+                  )
+                })
+              }
+              {
+                this.state.pendingCertifications.length > 2 ?
+                  <div className="text-right">
+                    <Link to={`/${clientId}/certification`}>More</Link>
+                  </div>
+                  : null
               }
             </Card>
           </Col>

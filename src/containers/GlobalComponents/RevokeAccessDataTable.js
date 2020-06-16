@@ -162,16 +162,6 @@ class RevokeAccessDataTable extends Component {
           title: 'Decision',
           width: 200,
           render: (record) => {
-            const menu = (
-              <Menu>
-                <Menu.Item>
-                  <span className="text-primary ml-5 cursor-pointer">Certify Conditionally</span>
-                </Menu.Item>
-                <Menu.Item>
-                  <span className="text-primary ml-5 cursor-pointer" onClick={() => undoDecision(record.id)}>Undo decision</span>
-                </Menu.Item>
-              </Menu>
-            );
             const action = get(record, 'action');
 
             return (
@@ -182,9 +172,6 @@ class RevokeAccessDataTable extends Component {
                 >
                   {action === 'rejected' ? 'Revoked' : 'Revoke'}
                 </span>
-                <Dropdown overlay={menu} trigger={['click']}>
-                  <Icon type="unordered-list" className='text-primary'/>
-                </Dropdown>
               </div>
             )
           }
@@ -227,7 +214,8 @@ class RevokeAccessDataTable extends Component {
   }
 
   render() {
-    const { onSelectAll, groupList, confirmRevokeSelected, onChange, selected, searchKey, changedCount, submitData, userList, activeKey } = this.props;
+    const { onSelectAll, groupList, confirmRevokeSelected, onChange, selected, searchKey, changedCount, submitData, userList, activeKey, dataType } = this.props;
+    const type = dataType === "group" ? "Users" : "Groups"
     return (
       <div className="custom-content">
         <Card className="mt-10">
@@ -262,7 +250,7 @@ class RevokeAccessDataTable extends Component {
                   <Col lg={2} md={4} sm={4} xs={6} className="mt-5">
                     <Search
                       size="large"
-                      placeholder="Search for entitlement"
+                      placeholder={`Search for ${type}`}
                       // style={{width: 220}}
                       className="float-right w-100-p"
                       value={searchKey}

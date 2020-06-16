@@ -19,13 +19,16 @@ class MyProfile extends Component {
             isEdit: false,
             identityUsersList: [],
             isLoading: false,
-            isModifyUser: !!query.id,
+            isAddUser: false,
+            isModifyUser: false, // !!query.id,
             selectedRecord: {},
+            newUser: {},
             profile: {},
             totalResource: 0,
             defaultCurrent: 1,
             id: query.id || "",
-            activeKey: query.tab || '1'
+            activeKey: query.tab || '1',
+            searchUser: ''
         }
     }
 
@@ -43,7 +46,7 @@ class MyProfile extends Component {
                 return identityUsersList.slice(0, 1);
             }
         } else {
-            return identityUsersList.filter(x => x.Email && x.Manager).filter(x =>  x.UserName !== getUserName() && x.Manager === getUserName())
+            // return identityUsersList.filter(x => x.Email && x.Manager).filter(x =>  x.UserName !== getUserName() && x.Manager === getUserName())
         }
         if (!searchUser) {
             return identityUsersList;
@@ -89,8 +92,9 @@ class MyProfile extends Component {
 
     modifyUser = (selectedRecord,isModifyUser) => {
         this.setState({
-                isModifyUser,
-                selectedRecord
+            isModifyUser,
+            selectedRecord,
+            newUser: selectedRecord
         })
     }
 
@@ -156,19 +160,208 @@ class MyProfile extends Component {
         })
     }
 
+    onAddUser = () => {
+        this.setState({
+            isAddUser: false,
+            isModifyUser: false
+        })
+    }
+
+    onChange = (event) => {
+        this.setState({
+            newUser: {
+                ...this.state.newUser,
+                [event.target.name]: event.target.value
+            }
+        })
+    }
+
     render() {
-        const {isLoading, isModifyUser, selectedRecord, profile, activeKey} = this.state;
+        const {isLoading, isModifyUser, selectedRecord, profile, activeKey, searchUser, isAddUser, newUser} = this.state;
+        const { FirstName, Manager, MiddleName, Title, LastName, Email, displayName, UserType  } = newUser || {}
         return(
           <div className="dashboard create-user">
-              {
-                  isLoading ? <Spin className='mt-50 custom-loading'/> :
-                      <ModifyUser
-                          isProfile
-                          selectedRecord={profile}
-                          onCloseModifyUser={this.onCloseModifyUser}
-                      />
-              }
-          </div>
+              <Tabs defaultActiveKey={activeKey} onChange={this.onTabChange}>
+                  <TabPane tab="Profile" key="1">
+                      {
+                          isLoading ? <Spin className='mt-50 custom-loading'/> :
+                            <ModifyUser
+                              isProfile
+                              selectedRecord={profile}
+                              onCloseModifyUser={this.onCloseModifyUser}/>
+                      }
+                  </TabPane>
+                  <TabPane tab="Manage Users" key="2">
+                      {
+                          !(isModifyUser && selectedRecord && selectedRecord.userId) ?
+                            <Card className="mt-20">
+                                <CardHeader>
+                                    <Row className="align-items-center">
+                                        <Col md={6} sm={12} xs={12} className="d-flex">
+                                            <span className="cursor-pointer ml-5 mr-5">
+                                                <a><img src={require("../../images/user.png")} style={{width: 40}}/></a>
+                                            </span>
+                                            <h4 className="mt-10">{ isAddUser ? "Add User" : isModifyUser ? "Modify User" : "Manage Users"}</h4>
+                                        </Col>
+                                        <Col md={6} sm={12} xs={12}>
+                                            { (!isAddUser && !isModifyUser) ?
+                                                <div className="text-right">
+                                                    <Button
+                                                        className="square mr-10"
+                                                        size={"large"}
+                                                        color="primary"
+                                                        onClick={() => this.setState({isAddUser: true})}
+                                                    >
+                                                        <a>
+                                                            <img
+                                                                src={require("../../images/plus-symbol.png")}
+                                                                style={{width: 20}}
+                                                            />
+                                                        </a>
+                                                        &nbsp;Add User
+                                                    </Button>
+                                                    <Search
+                                                        size="large"
+                                                        placeholder="Search Name"
+                                                        style={{width: 220}}
+                                                        value={searchUser}
+                                                        name={'searchUser'}
+                                                        onChange={this.onChangeSearchUser}
+                                                    />
+                                                </div> :
+                                                <div className="text-right">
+                                                    {
+                                                        isModifyUser ?
+                                                            <>
+                                                                <Button className="square ml-10" size={"large"} color="primary">Disable</Button>
+                                                                <Button className="square ml-10" size={"large"} color="primary">Lock</Button>
+                                                                <Button className="square ml-10" size={"large"} color="primary">Delete</Button>
+                                                                <Button className="square ml-10" size={"large"} color="primary">Update</Button>
+                                                            </> : null
+                                                    }
+                                                    <Button className="square ml-10" size={"large"} color="primary" onClick={this.onAddUser}>Save</Button>
+                                                    <Button className="square ml-10" size={"large"} color="primary" onClick={this.onAddUser}>&nbsp;<a><img src={require("../../images/multiply.png")} style={{width: 20}} /></a></Button>
+                                                </div>
+                                            }
+                                        </Col>
+                                    </Row>
+                                </CardHeader>
+                                <CardBody>
+                                    {isLoading ? <Spin className='mt-50 custom-loading'/> :
+                                        <>
+                                            { (isAddUser || isModifyUser) ?
+                                                <Row className="align-items-center">
+                                                    <Col md={2} sm={12} xs={12}>
+                                                        <span><b>First Name</b></span>
+                                                    </Col>
+                                                    <Col md={4} sm={12} xs={12}>
+                                                        <Input
+                                                            name="FirstName"
+                                                            onChange={this.onChange}
+                                                            value={FirstName}
+                                                        />
+                                                    </Col>
+                                                    <Col md={2} sm={12} xs={12}>
+                                                        <span><b>Manager</b></span>
+                                                    </Col>
+                                                    <Col md={4} sm={12} xs={12}>
+                                                        <Input
+                                                            name="Manager"
+                                                            onChange={this.onChange}
+                                                            value={Manager}
+                                                        />
+                                                    </Col>
+                                                    <Col md={2} sm={12} xs={12}>
+                                                        <span><b>Middle Name</b></span>
+                                                    </Col>
+                                                    <Col md={4} sm={12} xs={12}>
+                                                        <Input
+                                                            className="mt-10"
+                                                            onChange={this.onChange}
+                                                            name="MiddleName"
+                                                            value={MiddleName}
+                                                        />
+                                                    </Col>
+                                                    <Col md={2} sm={12} xs={12}>
+                                                        <span><b>Organization</b></span>
+                                                    </Col>
+                                                    <Col md={4} sm={12} xs={12}>
+                                                        <Input
+                                                            value={Title}
+                                                            onChange={this.onChange}
+                                                            name="Title"
+                                                            className="mt-10"
+                                                        />
+                                                    </Col>
+                                                    <Col md={2} sm={12} xs={12}>
+                                                        <span><b>Last Name</b></span>
+                                                    </Col>
+                                                    <Col md={4} sm={12} xs={12}>
+                                                        <Input
+                                                            name="LastName"
+                                                            value={LastName}
+                                                            onChange={this.onChange}
+                                                            className="mt-10"
+                                                        />
+                                                    </Col>
+                                                    <Col md={2} sm={12} xs={12}>
+                                                        <span><b>E-mail</b></span>
+                                                    </Col>
+                                                    <Col md={4} sm={12} xs={12}>
+                                                        <Input
+                                                            name="Email" value={Email} onChange={this.onChange}
+                                                               className="mt-10"/>
+                                                    </Col>
+                                                    <Col md={2} sm={12} xs={12}>
+                                                        <span><b>Display Name</b></span>
+                                                    </Col>
+                                                    <Col md={4} sm={12} xs={12}>
+                                                        <Input className="mt-10" value={displayName} name="displayName"
+                                                               onChange={this.onChange}/>
+                                                    </Col>
+                                                    <Col md={2} sm={12} xs={12}>
+                                                        <span><b>User Type</b></span>
+                                                    </Col>
+                                                    <Col md={4} sm={12} xs={12}>
+                                                        <Input name="UserType" value={UserType} onChange={this.onChange}
+                                                               className="mt-10"/>
+                                                    </Col>
+                                                    <Col md={6}/>
+                                                    <Col md={2} sm={12} xs={12}>
+                                                        <span><b>Identity Status</b></span>
+                                                    </Col>
+                                                    <Col md={4} sm={12} xs={12}>
+                                                        <Button type="primary" size="small" className="mt-10 mr-10">Active</Button>
+                                                        <Button size="small" className="mt-10">Inactive</Button>
+                                                    </Col>
+                                                </Row> :
+                                                <Row>
+                                                    <Col md={12} sm={12} xs={12}>
+                                                        <Table
+                                                            columns={this.getColumns()}
+                                                            size="small"
+                                                            dataSource={this.getFilteredUsers()}
+                                                            pagination={false}
+                                                        />
+                                                    </Col>
+                                                </Row>
+                                            }
+                                        </>
+                                    }
+                                </CardBody>
+                            </Card>
+                            :
+                            <ModifyUser
+                              selectedRecord={selectedRecord}
+                              onCloseModifyUser={this.onCloseModifyUser}/>
+
+                      }
+                  </TabPane>
+                  <TabPane tab="Setup Proxy" key="3">
+                      <SetupProxy />
+                  </TabPane>
+              </Tabs>
+            </div>
         )
     }
 }
