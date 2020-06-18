@@ -13,26 +13,12 @@ import {
 } from "antd";
 const {Search} = Input;
 const {TabPane} = Tabs;
-import {ApiService, getUserName} from "../../services/ApiService";
+// import {ApiService, getUserName} from "../../services/ApiService";
+import {ApiService} from "../../services/ApiService1";
 import CopyUsersModal from "./CopyUsersModal"
 import '../GlobalComponents/Access.scss'
 import '../Home/Home.scss'
-
 import TableTransfer from "../GlobalComponents/TableTransfer";
-
-const groupsListArray = [
-    { name: 'Group 1', description: 'Group 1 description', id: 0 },
-    { name: 'Group 2', description: 'Group 2 description', id: 1 },
-    { name: 'Group 3', description: 'Group 3 description', id: 2 },
-    { name: 'Group 4', description: 'Group 4 description', id: 3 },
-    { name: 'Group 5', description: 'Group 5 description', id: 4 },
-    { name: 'Group 6', description: 'Group 6 description', id: 5 },
-    { name: 'Group 7', description: 'Group 7 description', id: 6 },
-    { name: 'Group 8', description: 'Group 8 description', id: 7 },
-    { name: 'Group 9', description: 'Group 9 description', id: 8 },
-    { name: 'Group 10', description: 'Group 10 description', id: 9 },
-    { name: 'Group 11', description: 'Group 11 description', id: 10 },
-]
 
 
 class ByUsers extends Component {
@@ -43,32 +29,30 @@ class ByUsers extends Component {
         this.state = {
             current: 1,
             isLoading: false,
+            isSaving: false,
             copyUserModal: false,
             userList: [],
+            groupList: [],
             selectedUsersKeys: [],
             selectedUsers: [],
             selectedItem: [],
             search: '',
-            selectedAdvisor: '',
-            groupsList: groupsListArray,
+            selectedAdvisor: ''
         };
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         this.getAllUsers()
+        this.getAllGroups()
     }
 
     getAllUsers = async () => {
-        const {userList} = this.state
+        let userList = []
         this.setState({
             isLoading: true,
             isLoadingUsers: true
         });
-        const payload = {
-            userName: "",
-            managerRequired: ""
-        };
-        const data = await ApiService.getUsersWorkflow(payload)
+        const data = await this._apiService.getAllUsers()
 
         if (!data || data.error) {
             this.setState({
@@ -81,13 +65,41 @@ class ByUsers extends Component {
                 obj = {
                     ...x,
                     key: i,
-                    id: i
+                    // id: i
                 };
                 userList.push(obj)
             })
             this.setState({
                 userList,
                 isLoading: false,
+            })
+        }
+    }
+
+    getAllGroups = async () => {
+        let groupList = []
+        this.setState({
+            isLoading: true,
+            isLoadingUsers: true
+        });
+        const data = await this._apiService.getGroups(`?members=true`)
+
+        if (!data || data.error) {
+            this.setState({
+                isLoading: false
+            });
+            return message.error('something is wrong! please try again');
+        } else {
+            let obj = {};
+            (data || []).forEach((x, i) => {
+                obj = {
+                    ...x,
+                    key: i
+                };
+                groupList.push(obj)
+            })
+            this.setState({
+                groupList
             })
         }
     }
@@ -168,8 +180,8 @@ class ByUsers extends Component {
     }
 
     getFiltered = (isRecommand) => {
-        const { search, groupsList } = this.state
-        let arrayList = clonedeep(groupsList) || [];
+        const { search, groupList } = this.state
+        let arrayList = clonedeep(groupList) || [];
         if(!search) {
             if(!isRecommand) {
                 arrayList = arrayList.slice(0, 5)
@@ -212,7 +224,7 @@ class ByUsers extends Component {
             {
                 render: (record) => {
                     return <div className="ws-nowrap">
-                        <h4>{record.name}</h4>
+                        <h4>{record.displayName}</h4>
                         <h6>Description Of {record.description}</h6>
                     </div>
 
@@ -242,7 +254,7 @@ class ByUsers extends Component {
             {
                 title: 'Name',
                 render: (record) => {
-                    return <span className="ws-nowrap">{record && (record.name)}</span>
+                    return <span className="ws-nowrap">{record && (record.displayName)}</span>
                 },
                 width: "60%",
             },
@@ -352,8 +364,57 @@ class ByUsers extends Component {
         return filteredData;
     }
 
+    onCopyUsers = (idList) => {
+        let { selectedUsers, selectedUsersKeys, userList } = this.state
+        idList.forEach(id => {
+            const object = userList.find(x => x.id === id) || {}
+            if(object && object.hasOwnProperty("key") && !(selectedUsersKeys.includes(object.key))) {
+                selectedUsersKeys.push(object.key)
+                selectedUsers.push(object)
+            }
+        })
+        this.setState({
+            selectedUsers,
+            selectedUsersKeys,
+            copyUserModal: false
+        })
+    }
+
+    onSubmit = async () => {
+        const { selectedUsers } = this.state
+        const payload = { users: [] }
+        selectedUsers.forEach(user => {
+            if((user.groups || []).length) {
+                let object = {
+                    userId: user.id,
+                    groups: []
+                }
+                user.groups.forEach(group => {
+                    object.groups.push({groupId: group.id})
+                })
+                payload.users.push(object)
+            }
+        })
+        this.setState({
+            isSaving: true
+        })
+        const data = await this._apiService.addGroupToUser(payload)
+        if (!data || data.error) {
+            this.setState({
+                isLoading: false,
+                isSaving: false
+            });
+            return message.error('something is wrong! please try again');
+        } else {
+            message.success(data || "Successfully updated");
+            this.setState({
+                isSaving: false
+            });
+        }
+    }
+
     render() {
-        const { isLoading, userList, selectedUsersKeys, current, selectedItem, selectedUsers, search, copyUserModal, selectedAdvisor, searchAdvisorUser } = this.state;
+        const { isLoading, userList, selectedUsersKeys, current, selectedItem, selectedUsers, search, copyUserModal, selectedAdvisor, searchAdvisorUser, groupList, isSaving } = this.state;
 
         const users = [];
         userList.forEach(user => {
@@ -377,7 +438,7 @@ class ByUsers extends Component {
             {
                 render: (record) => {
                     return (
-                        <span className="ws-nowrap">Email: <b>{record.email}</b></span>);
+                        <span className="ws-nowrap">Email: <b>{record.emails}</b></span>);
                 },
                 width: "20%",
 
@@ -399,7 +460,7 @@ class ByUsers extends Component {
 
         return (
             <div className="dashboard request">
-                { copyUserModal ? <CopyUsersModal userList={userList} onClose={this.onCopyUserModal}/> : null }
+                { copyUserModal ? <CopyUsersModal onClose={this.onCopyUserModal} groupList={groupList} onCopyUsers={this.onCopyUsers}/> : null }
                 <Row>
                     <Col>
                         <Card>
@@ -600,11 +661,15 @@ class ByUsers extends Component {
                                                 <Button
                                                     className="square ml-10"
                                                     size={"large"}
-                                                    color="primary" onClick={() => this.onSubmit(3)}
-                                                    // disabled={this.isDisabled() || !(this.getUserMapping() || []).length}
+                                                    color="primary" onClick={this.onSubmit}
+                                                    disabled={isSaving}
                                                 >
                                                     <span>
-                                                        <img src={require('../../images/enter-arrow.png')} style={{width: 20}} className="ml-10 mr-10"/>
+                                                        {
+                                                            isSaving ?
+                                                                <Spin className='color-white mr-10'/> :
+                                                                <img src={require('../../images/enter-arrow.png')} style={{width: 20}} className="ml-10 mr-10"/>
+                                                        }
                                                     </span>
                                                     Submit
                                                 </Button>
@@ -613,6 +678,7 @@ class ByUsers extends Component {
                                                     size={"large"}
                                                     color="primary"
                                                     onClick={() => this.setState({current: 2})}
+                                                    disabled={isSaving}
                                                 >
                                                     <a>
                                                         <img src={require('../../images/multiply.png')} style={{width: 20}} className="ml-10 mr-10"/>

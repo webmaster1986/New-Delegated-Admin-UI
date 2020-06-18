@@ -12,26 +12,13 @@ import {
 } from "antd";
 const {Search} = Input;
 const {TabPane} = Tabs;
-import {ApiService, getUserName} from "../../services/ApiService";
+// import {ApiService, getUserName} from "../../services/ApiService";
+import {ApiService} from "../../services/ApiService1";
 import CopyGroupsModal from "./CopyGroupsModal"
 import TableTransfer from "../GlobalComponents/TableTransfer";
 import clonedeep from "lodash.clonedeep";
 import '../GlobalComponents/Access.scss'
 import '../Home/Home.scss'
-
-const groupsListArray = [
-    { name: 'Group 1', description: 'Group 1 description', id: 0, key: 0 },
-    { name: 'Group 2', description: 'Group 2 description', id: 1, key: 1 },
-    { name: 'Group 3', description: 'Group 3 description', id: 2, key: 2 },
-    { name: 'Group 4', description: 'Group 4 description', id: 3, key: 3 },
-    { name: 'Group 5', description: 'Group 5 description', id: 4, key: 4 },
-    { name: 'Group 6', description: 'Group 6 description', id: 5, key: 5 },
-    { name: 'Group 7', description: 'Group 7 description', id: 6, key: 6 },
-    { name: 'Group 8', description: 'Group 8 description', id: 7, key: 7 },
-    { name: 'Group 9', description: 'Group 9 description', id: 8, key: 8 },
-    { name: 'Group 10', description: 'Group 10 description', id: 9 , key: 9 },
-    { name: 'Group 11', description: 'Group 11 description', id: 10, key: 10 },
-]
 
 
 class ByGroups extends Component {
@@ -42,6 +29,7 @@ class ByGroups extends Component {
         this.state = {
             current: 1,
             isLoading: false,
+            isSaving: false,
             copyGroupModal: false,
             userList: [],
             selectedGroupsKeys: [],
@@ -50,12 +38,13 @@ class ByGroups extends Component {
             search: '',
             selectedAdvisor: '',
             searchAdvisorGroup: '',
-            groupsList: groupsListArray,
+            groupList: [],
         };
     }
 
     componentDidMount() {
         this.getAllUsers()
+        this.getAllGroups()
     }
 
     getAllUsers = async () => {
@@ -64,11 +53,8 @@ class ByGroups extends Component {
             isLoading: true,
             isLoadingUsers: true
         });
-        const payload = {
-            userName: "",
-            managerRequired: ""
-        };
-        const data = await ApiService.getUsersWorkflow(payload)
+
+        const data = await this._apiService.getAllUsers()
 
         if (!data || data.error) {
             this.setState({
@@ -80,8 +66,7 @@ class ByGroups extends Component {
             (data || []).forEach((x, i) => {
                 obj = {
                     ...x,
-                    key: i,
-                    id: i
+                    key: i
                 };
                 userList.push(obj)
             })
@@ -92,12 +77,40 @@ class ByGroups extends Component {
         }
     }
 
+    getAllGroups = async () => {
+        let groupList = []
+        this.setState({
+            isLoading: true,
+            isLoadingUsers: true
+        });
+        const data = await this._apiService.getGroups(`?members=true`)
+
+        if (!data || data.error) {
+            this.setState({
+                isLoading: false
+            });
+            return message.error('something is wrong! please try again');
+        } else {
+            let obj = {};
+            (data || []).forEach((x, i) => {
+                obj = {
+                    ...x,
+                    key: i
+                };
+                groupList.push(obj)
+            })
+            this.setState({
+                groupList
+            })
+        }
+    }
+
     handleGroupChange = selectedGroupsKeys => {
-        const { groupsList } = this.state
+        const { groupList } = this.state
         let selectedGroups = []
         if(selectedGroupsKeys.length) {
             selectedGroupsKeys.forEach(select => {
-                selectedGroups.push(groupsList[select])
+                selectedGroups.push(groupList[select])
             })
         } else {
             selectedGroups = []
@@ -113,7 +126,7 @@ class ByGroups extends Component {
             {
                 title: 'Name',
                 render: (record) => {
-                    return <span className="ws-nowrap">{record && (record.name)}</span>
+                    return <span className="ws-nowrap">{record && (record.displayName)}</span>
                 },
             },
             {
@@ -131,7 +144,7 @@ class ByGroups extends Component {
                 render: (record, data) => {
                     return (
                         <Radio.Group name="selectedUser"  onChange={this.onChange} value={this.state.selectedUser}>
-                            <Radio value={data.name} />
+                            <Radio value={data.id} />
                         </Radio.Group>
                     )
                 }
@@ -162,9 +175,9 @@ class ByGroups extends Component {
         }
 
         arrayList = arrayList.filter(x => {
-            const displayName = x && x.displayName;
-            const userName = x && x.userName;
-            const email = x && x.email;
+            const displayName = x && x.displayName || "";
+            const userName = x && x.userName || "";
+            const email = x && x.email || "";
             return displayName.toLowerCase().includes(search.toLowerCase()) || userName.toLowerCase().includes(search.toLowerCase()) || email.toLowerCase().includes(search.toLowerCase());
         });
         if(!isRecommand) {
@@ -241,7 +254,7 @@ class ByGroups extends Component {
             {
                 title: 'Email',
                 render: (record) => {
-                    return <span className="ws-nowrap">{record && (record.email)}</span>
+                    return <span className="ws-nowrap">{record && (record.emails)}</span>
                 },
                 width: "30%",
             },
@@ -328,27 +341,76 @@ class ByGroups extends Component {
     }
 
     getFilteredGroupsList = () => {
-        const { groupsList, searchAdvisorGroup } = this.state;
+        const { groupList, searchAdvisorGroup } = this.state;
         if(!searchAdvisorGroup){
-            return groupsList
+            return groupList
         }
 
-        let filteredData = clonedeep(groupsList);
+        let filteredData = clonedeep(groupList);
 
         if(searchAdvisorGroup){
             filteredData = filteredData.filter(x => {
-                return ['name'].some(y =>  (x[y] || '').toLowerCase().includes(searchAdvisorGroup.toLowerCase()))
+                return ['displayName'].some(y =>  (x[y] || '').toLowerCase().includes(searchAdvisorGroup.toLowerCase()))
             });
         }
 
         return filteredData;
     }
 
+    onCopyGroups = (idList) => {
+        let { selectedGroups, selectedGroupsKeys, groupList } = this.state
+        idList.forEach(id => {
+            const object = groupList.find(x => x.id === id) || {}
+            if(object && object.hasOwnProperty("key") && !(selectedGroupsKeys.includes(object.key))) {
+                selectedGroupsKeys.push(object.key)
+                selectedGroups.push(object)
+            }
+        })
+        this.setState({
+            selectedGroups,
+            selectedGroupsKeys,
+            copyGroupModal: false
+        })
+    }
+
+    onSubmit = async () => {
+        const { selectedGroups } = this.state
+        const payload = { groups: [] }
+        selectedGroups.forEach(group => {
+            if((group.users || []).length) {
+                let object = {
+                    groupId: group.id,
+                    users: []
+                }
+                group.users.forEach(user => {
+                    object.users.push({userId: user.id})
+                })
+                payload.groups.push(object)
+            }
+        })
+        this.setState({
+            isSaving: true
+        })
+        const data = await this._apiService.addUserToGroup(payload)
+        if (!data || data.error) {
+            this.setState({
+                isLoading: false,
+                isSaving: false
+            });
+            return message.error('something is wrong! please try again');
+        } else {
+            message.success(data || "Successfully updated");
+            this.setState({
+                isSaving: false
+            })
+        }
+    }
+
     render() {
-        const { isLoading, search, selectedGroupsKeys, current, selectedItem, selectedGroups, groupsList, copyGroupModal, selectedAdvisor, searchAdvisorGroup } = this.state;
+        const { isLoading, search, selectedGroupsKeys, current, userList, selectedItem, selectedGroups, groupList, copyGroupModal, selectedAdvisor, searchAdvisorGroup, isSaving } = this.state;
 
         const groups = [];
-        groupsList.forEach(group => {
+        groupList.forEach(group => {
             if (selectedGroupsKeys.indexOf(group.key) !== -1) {
                 groups.push({
                     ...group,
@@ -361,7 +423,7 @@ class ByGroups extends Component {
             {
                 title: 'Name',
                 render: (record) => {
-                    return <span className="ws-nowrap">Name: <b>{record.name}</b></span>
+                    return <span className="ws-nowrap">Name: <b>{record.displayName}</b></span>
                 },
                 width: "50%",
 
@@ -392,7 +454,7 @@ class ByGroups extends Component {
 
         return (
             <div className="dashboard request">
-                { copyGroupModal ? <CopyGroupsModal groupsList={groupsList} onClose={this.onCopyGroupModal}/> : null }
+                { copyGroupModal ? <CopyGroupsModal userList={userList}  groupsList={groupList} onClose={this.onCopyGroupModal} onCopyGroups={this.onCopyGroups}/> : null }
                 <Row>
                     <Col>
                         <Card>
@@ -435,7 +497,7 @@ class ByGroups extends Component {
                                                             current === 1 ?
                                                                 <TableTransfer
                                                                     className="mt-20"
-                                                                    dataSource={groupsList || []}
+                                                                    dataSource={groupList || []}
                                                                     targetKeys={selectedGroupsKeys}
                                                                     showSearch
                                                                     listStyle={{
@@ -476,7 +538,7 @@ class ByGroups extends Component {
                                                     <div className='user-header' style={{height: 35, paddingTop: 2}}>
                                                         {
                                                             (groups || []).slice(0, 3).map((x, i) => {
-                                                                return <span className="mt-10 ml-10 fs-18" key={i.toString()}>{x.name}{i === 2 ? "" : ","}</span>
+                                                                return <span className="mt-10 ml-10 fs-18" key={i.toString()}>{x.displayName}{i === 2 ? "" : ","}</span>
                                                             })
                                                         }
                                                         <span className="mt-20 ml-10 fs-18 ">&nbsp;{groups.length > 3 ? `+${groups.length - 3} more` : null}</span>
@@ -607,11 +669,15 @@ class ByGroups extends Component {
                                                     className="square ml-10"
                                                     size={"large"}
                                                     color="primary"
-                                                    // onClick={() => this.onSubmit(3)}
-                                                    // disabled={this.isDisabled() || !(this.getUserMapping() || []).length}
+                                                    onClick={this.onSubmit}
+                                                    disabled={isSaving}
                                                 >
                                                     <span>
-                                                        <img src={require('../../images/enter-arrow.png')} style={{width: 20}} className="ml-10 mr-10"/>
+                                                        {
+                                                            isSaving ?
+                                                                <Spin className='color-white mr-10'/> :
+                                                                <img src={require('../../images/enter-arrow.png')} style={{width: 20}} className="ml-10 mr-10"/>
+                                                        }
                                                     </span>
                                                     Submit
                                                 </Button>
@@ -620,6 +686,7 @@ class ByGroups extends Component {
                                                     size={"large"}
                                                     color="primary"
                                                     onClick={() => this.setState({current: 2})}
+                                                    disabled={isSaving}
                                                 >
                                                     <a>
                                                         <img src={require('../../images/multiply.png')} style={{width: 20}} className="ml-10 mr-10"/>

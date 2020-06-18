@@ -28,8 +28,8 @@ class RevokeAccessDataTable extends Component {
                 <div>
                   <Checkbox
                       className={'custom-check-box pl-10'}
-                      checked={selected.includes(record.id)}
-                      onChange={(e) => onCheckBoxChange(record.id, e)}
+                      checked={selected.includes(record.key)}
+                      onChange={(e) => onCheckBoxChange(record.key, e)}
                   />
                 </div>
             )
@@ -65,7 +65,7 @@ class RevokeAccessDataTable extends Component {
                   <span className="text-primary ml-5 cursor-pointer">Certify Conditionally</span>
                 </Menu.Item>
                 <Menu.Item>
-                  <span className="text-primary ml-5 cursor-pointer" onClick={() => undoDecision(record.id)}>Undo decision</span>
+                  <span className="text-primary ml-5 cursor-pointer" onClick={() => undoDecision(record.key)}>Undo decision</span>
                 </Menu.Item>
               </Menu>
             );
@@ -75,7 +75,7 @@ class RevokeAccessDataTable extends Component {
               <div>
                 <span
                   className={`mr-10 ws-nowrap row-action-btn-a ${action === 'rejected' ? 'text-success' : 'text-initial'}`}
-                  onClick={() => onUpdateStatus(record.id, action === 'rejected' ? 'required' : 'rejected')}
+                  onClick={() => onUpdateStatus(record.key, action === 'rejected' ? 'required' : 'rejected')}
                 >
                   {action === 'rejected' ? 'Revoked' : 'Revoke'}
                 </span>
@@ -96,8 +96,8 @@ class RevokeAccessDataTable extends Component {
           render: (record) => {
             return (
                 <div>
-                  <Checkbox className={'custom-check-box pl-10'} checked={selected.includes(record.id)}
-                            onChange={(e) => onCheckBoxChange(record.id, e)}/>
+                  <Checkbox className={'custom-check-box pl-10'} checked={selected.includes(record.key)}
+                            onChange={(e) => onCheckBoxChange(record.key, e)}/>
                 </div>
             )
           }
@@ -168,7 +168,7 @@ class RevokeAccessDataTable extends Component {
               <div>
                 <span
                   className={`mr-10 ws-nowrap row-action-btn-a ${action === 'rejected' ? 'text-success' : 'text-initial'}`}
-                  onClick={() => onUpdateStatus(record.id, action === 'rejected' ? 'required' : 'rejected')}
+                  onClick={() => onUpdateStatus(record.key, action === 'rejected' ? 'required' : 'rejected')}
                 >
                   {action === 'rejected' ? 'Revoked' : 'Revoke'}
                 </span>

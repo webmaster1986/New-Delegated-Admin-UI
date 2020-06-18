@@ -9,7 +9,8 @@ import clonedeep from "lodash.clonedeep";
 import {get} from 'lodash';
 const {Search} = Input;
 const { TabPane } = Tabs;
-import {ApiService, getUserName} from "../../services/ApiService";
+// import {ApiService, getUserName} from "../../services/ApiService";
+import {ApiService, getUserName} from "../../services/ApiService1";
 import RevokeAccessDataTable from "../GlobalComponents/RevokeAccessDataTable"
 import '../GlobalComponents/Access.scss'
 import '../Home/Home.scss'
@@ -61,11 +62,8 @@ class ByUsers extends Component {
             isLoading: true,
             isLoadingUsers: true
         });
-        const payload = {
-            userName: "",
-            managerRequired: ""
-        };
-        const data = await ApiService.getUsersWorkflow(payload)
+
+        const data = await this._apiService.getAllUsers()
 
         if (!data || data.error) {
             this.setState({
@@ -75,12 +73,12 @@ class ByUsers extends Component {
         } else {
             (data || []).forEach((x, i) => {
                 x.key = i;
-                x.id = i;
+                // x.id = i;
                 x.color = getColor(i)
             })
             this.setState({
                 userList: data || [],
-                activeKey: data && data.length ? data[0].userName : '',
+                activeKey: data && data.length ? data[0].id : '',
                 isLoading: false,
             }, () => this.onSetupGroupData())
         }
@@ -110,8 +108,9 @@ class ByUsers extends Component {
         }
         let filteredUserData = userList || [];
         filteredUserData = filteredUserData.filter(x => {
-            const name = x && x.displayName;
-            return name.toLowerCase().includes(searchUser.toLowerCase());
+            const firstname = x && x.firstname || "";
+            const lastName = x && x.lastName || "";
+            return firstname.toLowerCase().includes(searchUser.toLowerCase()) || lastName.toLowerCase().includes(searchUser.toLowerCase());
         });
         return filteredUserData;
     }
@@ -125,19 +124,19 @@ class ByUsers extends Component {
 
     onNextUser = () => {
         const {userList, activeKey} = this.state;
-        const mainRecordIndex = userList.findIndex(x => x.userName === activeKey);
+        const mainRecordIndex = userList.findIndex(x => x.id === activeKey);
         if (mainRecordIndex < userList.length - 1) {
             const nextUser = userList[mainRecordIndex + 1];
-            this.onChangeTab(nextUser.userName)
+            this.onChangeTab(nextUser.id)
         }
     }
 
     onPrevUser = () => {
         const {userList, activeKey} = this.state;
-        const mainRecordIndex = userList.findIndex(x => x.userName === activeKey);
+        const mainRecordIndex = userList.findIndex(x => x.id === activeKey);
         if (mainRecordIndex) {
             const prevUser = userList[mainRecordIndex - 1];
-            this.onChangeTab(prevUser.userName)
+            this.onChangeTab(prevUser.id)
         }
     }
 
@@ -158,12 +157,12 @@ class ByUsers extends Component {
         return filteredData;
     }
 
-    onCheckBoxChange = (id, event) => {
+    onCheckBoxChange = (key, event) => {
         let { selected } = this.state;
-        if (event.target.checked && !selected.includes(id)) {
-            selected.push(id);
+        if (event.target.checked && !selected.includes(key)) {
+            selected.push(key);
         } else {
-            selected = selected.filter(x => x !== id);
+            selected = selected.filter(x => x !== key);
         }
         this.setState({
             selected
@@ -234,7 +233,7 @@ class ByUsers extends Component {
         const getInitials = (firstName, lastName) => {
             return `${(firstName || '').length ? firstName.substr(0, 1).toUpperCase() : ''}${(lastName || '').length ? lastName.substr(0, 1).toUpperCase() : ''}`
         };
-        const mainRecord = (userList || []).find(x => x.userName === activeKey) || {};
+        const mainRecord = (userList || []).find(x => x.id === activeKey) || {};
         const changedCount = this.getChangedCount()
         return (
             <div className="user-detail-page">
@@ -270,13 +269,13 @@ class ByUsers extends Component {
                             <Icon type="right" onClick={this.onNextUser} className="profile-nav-arrow right-arrow"/>
                             <div className="text-center overflow-hidden">
                                 <div className="initial-name-inner-profile"
-                                     style={{background: mainRecord && mainRecord.color || 'red'}}>{(mainRecord && mainRecord.givenName || 'A').substr(0, 1)}{(mainRecord && mainRecord.familyName || 'B').substr(0, 1)}</div>
+                                     style={{background: mainRecord && mainRecord.color || 'red'}}>{(mainRecord && mainRecord.firstname || 'A').substr(0, 1)}{(mainRecord && mainRecord.lastName || 'B').substr(0, 1)}</div>
                                 <div
-                                    className="UName">{mainRecord && mainRecord.givenName} {mainRecord && mainRecord.familyName}</div>
+                                    className="UName">{mainRecord && mainRecord.firstname} {mainRecord && mainRecord.lastName}</div>
                                 <div
                                     className="UDesignation">{mainRecord && mainRecord.userInfo && mainRecord.userInfo.Title}</div>
                                 <div
-                                    className="UDesignation mb-10">{mainRecord && mainRecord.email}</div>
+                                    className="UDesignation mb-10">{mainRecord && mainRecord.emails}</div>
                                 <div className="box-part-a">
                                     <div>
                                         <span>Identity: </span><b>{mainRecord && mainRecord.userInfo && mainRecord.userInfo.UserName}</b>
@@ -311,8 +310,8 @@ class ByUsers extends Component {
                                     >
                                         {
                                             (this.getFilteredUsers() || []).map((item) => {
-                                                const firstName = item && item.givenName
-                                                const lastName = item && item.familyName
+                                                const firstName = item && item.firstname
+                                                const lastName = item && item.lastName
                                                 return (
                                                     <TabPane
                                                         tab={
@@ -326,7 +325,7 @@ class ByUsers extends Component {
                                                                </span>
                                                             </div>
                                                         }
-                                                        key={item.userName}
+                                                        key={item.id}
                                                         type="card"
                                                     >
                                                     </TabPane>

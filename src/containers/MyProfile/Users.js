@@ -3,7 +3,8 @@ import {Card, CardBody, Col, Row, CardHeader} from "reactstrap";
 import queryString from 'query-string'
 import './createUser.scss';
 import {Input, Button, message, Table, Switch, Spin, Tabs} from "antd";
-import {ApiService} from "../../services";
+// import {ApiService} from "../../services";
+import {ApiService} from "../../services/ApiService1";
 import ModifyUser from "./ModifyUser";
 import SetupProxy from "./SetupProxy";
 import {getUserName} from "../../services/ApiService";
@@ -11,6 +12,7 @@ const {Search} = Input;
 const {TabPane} = Tabs;
 
 class MyProfile extends Component {
+    _apiService = new ApiService();
     constructor(props){
         super(props)
         const params = this.props.history.location.search || ""
@@ -39,7 +41,7 @@ class MyProfile extends Component {
     getFilteredUsers = (isSelf) => {
         const {identityUsersList, searchUser} = this.state;
         if (isSelf && identityUsersList.length) {
-            const data = identityUsersList.filter(x => x.UserName === getUserName());
+            const data = identityUsersList.filter(x => x.userName === getUserName());
             if (data.length) {
                 return data;
             } else {
@@ -63,7 +65,7 @@ class MyProfile extends Component {
         this.setState({
             isLoading: true
         });
-        const data = await ApiService.GetAllIdentityUsers(page);
+        const data = await this._apiService.getAllUsers()
         if (!data || data.error) {
             this.setState({
                 isLoading: false
@@ -72,12 +74,12 @@ class MyProfile extends Component {
         } else {
             const { id } = this.state
             let selectedRecord = {}
-            if(data && data.resources && id){
-                selectedRecord = data.resources.find(item => item.userId === id)
+            if(data && data.length && id){
+                selectedRecord = (data || []).find(item => item.userId === id)
             }
             this.setState({
-                identityUsersList: data.resources,
-                totalResource: data.totalResource,
+                identityUsersList: data || [],
+                // totalResource: data.totalResource,
                 selectedRecord
             }, async () => {
                 const filteredUserData = await this.getFilteredUsers(true)
@@ -110,17 +112,17 @@ class MyProfile extends Component {
             {
                 title: 'User Name',
                 width: '18%',
-                render: (record) => (<span className="cursor-pointer" style={{color: '#005293'}} onClick={() =>this.modifyUser(record, true)}>{record.UserName}</span>)
+                render: (record) => (<span className="cursor-pointer" style={{color: '#005293'}} onClick={() =>this.modifyUser(record, true)}>{record.userName}</span>)
             },
             {
                 title: 'Display Name',
                 width: '18%',
-                render: (record) => (<span>{record.FirstName}{' '}{record.LastName}</span>)
+                render: (record) => (<span>{record.displayName}</span>)
             },
             {
                 title: 'E-mail',
                 width: '18%',
-                dataIndex: 'Email',
+                dataIndex: 'emails',
             },
             {
                 title: 'User Type',
@@ -167,6 +169,12 @@ class MyProfile extends Component {
         })
     }
 
+    onSaveNewUser = async () => {
+        const { newUser } = this.state
+        const data = await this._apiService.createUser(newUser)
+        console.log({data})
+    }
+
     onChange = (event) => {
         this.setState({
             newUser: {
@@ -178,7 +186,7 @@ class MyProfile extends Component {
 
     render() {
         const {isLoading, isModifyUser, selectedRecord, profile, activeKey, searchUser, isAddUser, newUser} = this.state;
-        const { FirstName, Manager, MiddleName, Title, LastName, Email, displayName, UserType  } = newUser || {}
+        const { firstname, manager, middleName, organization, lastName, emails, displayName, userType  } = newUser || {}
         return(
           <div className="dashboard create-user">
               <Tabs defaultActiveKey={activeKey} onChange={this.onTabChange}>
@@ -239,7 +247,7 @@ class MyProfile extends Component {
                                                                 <Button className="square ml-10" size={"large"} color="primary">Update</Button>
                                                             </> : null
                                                     }
-                                                    <Button className="square ml-10" size={"large"} color="primary" onClick={this.onAddUser}>Save</Button>
+                                                    <Button className="square ml-10" size={"large"} color="primary" onClick={this.onSaveNewUser}>Save</Button>
                                                     <Button className="square ml-10" size={"large"} color="primary" onClick={this.onAddUser}>&nbsp;<a><img src={require("../../images/multiply.png")} style={{width: 20}} /></a></Button>
                                                 </div>
                                             }
@@ -256,9 +264,9 @@ class MyProfile extends Component {
                                                     </Col>
                                                     <Col md={4} sm={12} xs={12}>
                                                         <Input
-                                                            name="FirstName"
+                                                            name="firstname"
                                                             onChange={this.onChange}
-                                                            value={FirstName}
+                                                            value={firstname}
                                                         />
                                                     </Col>
                                                     <Col md={2} sm={12} xs={12}>
@@ -266,9 +274,9 @@ class MyProfile extends Component {
                                                     </Col>
                                                     <Col md={4} sm={12} xs={12}>
                                                         <Input
-                                                            name="Manager"
+                                                            name="manager"
                                                             onChange={this.onChange}
-                                                            value={Manager}
+                                                            value={manager}
                                                         />
                                                     </Col>
                                                     <Col md={2} sm={12} xs={12}>
@@ -278,8 +286,8 @@ class MyProfile extends Component {
                                                         <Input
                                                             className="mt-10"
                                                             onChange={this.onChange}
-                                                            name="MiddleName"
-                                                            value={MiddleName}
+                                                            name="middleName"
+                                                            value={middleName}
                                                         />
                                                     </Col>
                                                     <Col md={2} sm={12} xs={12}>
@@ -287,9 +295,9 @@ class MyProfile extends Component {
                                                     </Col>
                                                     <Col md={4} sm={12} xs={12}>
                                                         <Input
-                                                            value={Title}
+                                                            value={organization}
                                                             onChange={this.onChange}
-                                                            name="Title"
+                                                            name="organization"
                                                             className="mt-10"
                                                         />
                                                     </Col>
@@ -298,8 +306,8 @@ class MyProfile extends Component {
                                                     </Col>
                                                     <Col md={4} sm={12} xs={12}>
                                                         <Input
-                                                            name="LastName"
-                                                            value={LastName}
+                                                            name="lastName"
+                                                            value={lastName}
                                                             onChange={this.onChange}
                                                             className="mt-10"
                                                         />
@@ -309,22 +317,33 @@ class MyProfile extends Component {
                                                     </Col>
                                                     <Col md={4} sm={12} xs={12}>
                                                         <Input
-                                                            name="Email" value={Email} onChange={this.onChange}
-                                                               className="mt-10"/>
+                                                            name="emails"
+                                                            value={emails}
+                                                            onChange={this.onChange}
+                                                            className="mt-10"
+                                                        />
                                                     </Col>
                                                     <Col md={2} sm={12} xs={12}>
                                                         <span><b>Display Name</b></span>
                                                     </Col>
                                                     <Col md={4} sm={12} xs={12}>
-                                                        <Input className="mt-10" value={displayName} name="displayName"
-                                                               onChange={this.onChange}/>
+                                                        <Input
+                                                            className="mt-10"
+                                                            value={displayName}
+                                                            name="displayName"
+                                                            onChange={this.onChange}
+                                                        />
                                                     </Col>
                                                     <Col md={2} sm={12} xs={12}>
                                                         <span><b>User Type</b></span>
                                                     </Col>
                                                     <Col md={4} sm={12} xs={12}>
-                                                        <Input name="UserType" value={UserType} onChange={this.onChange}
-                                                               className="mt-10"/>
+                                                        <Input
+                                                            name="userType"
+                                                            value={userType}
+                                                            onChange={this.onChange}
+                                                            className="mt-10"
+                                                        />
                                                     </Col>
                                                     <Col md={6}/>
                                                     <Col md={2} sm={12} xs={12}>
@@ -341,7 +360,6 @@ class MyProfile extends Component {
                                                             columns={this.getColumns()}
                                                             size="small"
                                                             dataSource={this.getFilteredUsers()}
-                                                            pagination={false}
                                                         />
                                                     </Col>
                                                 </Row>
