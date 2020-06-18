@@ -190,8 +190,8 @@ class ByUsers extends Component {
         }
 
         arrayList = arrayList.filter(x => {
-            const name = x && x.name;
-            const description = x && x.description;
+            const name = x && x.displayName || "";
+            const description = x && x.description || "";
             return name.toLowerCase().includes(search.toLowerCase()) || description.toLowerCase().includes(search.toLowerCase());
         });
         if(!isRecommand) {
@@ -225,7 +225,7 @@ class ByUsers extends Component {
                 render: (record) => {
                     return <div className="ws-nowrap">
                         <h4>{record.displayName}</h4>
-                        <h6>Description Of {record.description}</h6>
+                        <h6>{record.description}</h6>
                     </div>
 
                 },
@@ -410,6 +410,9 @@ class ByUsers extends Component {
             this.setState({
                 isSaving: false
             });
+            setTimeout(() => {
+                window.location.href = `/iga/${this.props.match.params.clientId}/dashboard`;
+            }, 2000);
         }
     }
 

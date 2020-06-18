@@ -108,6 +108,14 @@ export class ApiService {
     return await ApiService.postMethod(`${apiEndPoint}/v1/addUserToGroup`, payload);
   }
 
+  async removeGroupFromUser(payload) {
+    return await ApiService.postMethod(`${apiEndPoint}/v1/removeGroupFromUser`, payload);
+  }
+
+  async removeUserFromGroup(payload) {
+    return await ApiService.postMethod(`${apiEndPoint}/v1/removeUserFromGroup`, payload);
+  }
+
   async getUserGroups(id) {
     return await ApiService.getData(`${apiEndPoint}/v1/userGroups/${id}`);
   }

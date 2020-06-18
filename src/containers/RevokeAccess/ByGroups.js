@@ -2,13 +2,13 @@ import React, {Component} from 'react';
 import {
     Input,
     Icon,
-    Tabs, message
+    Tabs, message, Spin
 } from "antd";
 import clonedeep from "lodash.clonedeep";
 import {get} from 'lodash';
 const {Search} = Input;
 const { TabPane } = Tabs;
-import {ApiService, getUserName} from "../../services/ApiService";
+import {ApiService} from "../../services/ApiService1";
 import RevokeAccessDataTable from "../GlobalComponents/RevokeAccessDataTable"
 import '../GlobalComponents/Access.scss'
 import '../Home/Home.scss'
@@ -20,19 +20,6 @@ const getColor = (index) => {
     return colors[i] ? colors[i] : colors[0];
 }
 
-const groupsListArray = [
-    { name: 'Group 1', description: 'Group 1 description', id: 0 },
-    { name: 'Group 2', description: 'Group 2 description', id: 1 },
-    { name: 'Group 3', description: 'Group 3 description', id: 2 },
-    { name: 'Group 4', description: 'Group 4 description', id: 3 },
-    { name: 'Group 5', description: 'Group 5 description', id: 4 },
-    { name: 'Group 6', description: 'Group 6 description', id: 5 },
-    { name: 'Group 7', description: 'Group 7 description', id: 6 },
-    { name: 'Group 8', description: 'Group 8 description', id: 7 },
-    { name: 'Group 9', description: 'Group 9 description', id: 8 },
-    { name: 'Group 10', description: 'Group 10 description', id: 9 },
-    { name: 'Group 11', description: 'Group 11 description', id: 10 },
-]
 
 class ByGroups extends Component {
     _apiService = new ApiService();
@@ -42,6 +29,9 @@ class ByGroups extends Component {
         this.state = {
             isLoading: false,
             isSidebar: true,
+            isSaving: false,
+            isLoadingGroups: false,
+            isLoadingUsers: false,
             userList: [],
             groupList: [],
             selected: [],
@@ -52,50 +42,61 @@ class ByGroups extends Component {
     }
 
     componentDidMount() {
-        this.onSetupGroupData()
+        this.getAllGroups()
     }
 
-    onSetupGroupData = () => {
-        const groupList = clonedeep(groupsListArray)
-        groupList.forEach((x, i) => {
-            x.key = i;
-            x.id = i;
-            x.color = getColor(i)
-        })
-        this.setState({
-            groupList,
-            activeKey: groupList && groupList.length ? groupList[0].name : '',
-        }, () => this.getAllUsers())
-    }
-
-    getAllUsers = async () => {
+    getAllGroups = async () => {
+        let groupList = []
         this.setState({
             isLoading: true,
-            isLoadingUsers: true
+            isLoadingGroups: true
         });
-        const payload = {
-            userName: "",
-            managerRequired: ""
-        };
-        const data = await ApiService.getUsersWorkflow(payload)
+        const data = await this._apiService.getGroups(`?members=true`)
 
         if (!data || data.error) {
             this.setState({
-                isLoading: false
+                isLoading: false,
+                isLoadingGroups: false
             });
             return message.error('something is wrong! please try again');
         } else {
+            let obj = {};
             (data || []).forEach((x, i) => {
+                obj = {
+                    ...x,
+                    key: i,
+                    color: getColor(i)
+                };
+                groupList.push(obj)
+            })
+            const activeKey = groupList && groupList.length ? groupList[0].id : ''
+            this.setState({
+                groupList,
+                activeKey,
+                isLoadingGroups: false
+            }, () => this.getAllUsers(activeKey))
+        }
+    }
+
+    getAllUsers = async (activeKey) => {
+        this.setState({
+            isLoadingUsers: true
+        })
+        const { groupList } = this.state
+        const object = (groupList || []).find(x => x.id === activeKey) || {}
+        if(object && (object.members || []).length) {
+            object.members.forEach((x, i) => {
                 x.key = i;
                 x.id = i;
                 x.prevAction = x.action ? x.action : 'required';
                 x.action = x.action ? x.action : 'required';
             })
-            this.setState({
-                userList: data || [],
-                isLoading: false,
-            })
         }
+        this.setState({
+            userList: object.members || [],
+            isLoading: false,
+            isLoadingUsers: false
+        })
     }
 
     onSidebarChange = () => {
@@ -111,7 +112,7 @@ class ByGroups extends Component {
         }
         let filteredGroupData = groupList || [];
         filteredGroupData = filteredGroupData.filter(x => {
-            const name = x && x.name;
+            const name = x && x.displayName || "";
             return name.toLowerCase().includes(searchGroup.toLowerCase());
         });
         return filteredGroupData;
@@ -121,24 +122,24 @@ class ByGroups extends Component {
         this.setState({
             activeKey: newActiveKey,
             selected: []
-        }, () => this.getAllUsers())
+        }, () => this.getAllUsers(newActiveKey))
     }
 
     onNextUser = () => {
         const {groupList, activeKey} = this.state;
-        const mainRecordIndex = groupList.findIndex(x => x.name === activeKey);
+        const mainRecordIndex = groupList.findIndex(x => x.id === activeKey);
         if (mainRecordIndex < groupList.length - 1) {
             const nextUser = groupList[mainRecordIndex + 1];
-            this.onChangeTab(nextUser.name)
+            this.onChangeTab(nextUser.id)
         }
     }
 
     onPrevUser = () => {
         const {groupList, activeKey} = this.state;
-        const mainRecordIndex = groupList.findIndex(x => x.name === activeKey);
+        const mainRecordIndex = groupList.findIndex(x => x.id === activeKey);
         if (mainRecordIndex) {
             const prevUser = groupList[mainRecordIndex - 1];
-            this.onChangeTab(prevUser.name)
+            this.onChangeTab(prevUser.id)
         }
     }
 
@@ -152,8 +153,7 @@ class ByGroups extends Component {
 
         if(searchKey){
             filteredData = filteredData.filter(x => {
-                return ((x.givenName || "").toLowerCase().includes(searchKey.toLowerCase()) || (x.familyName || "").toLowerCase().includes(searchKey.toLowerCase()) || (x.userName || "").toLowerCase().includes(searchKey.toLowerCase()) ||
-                    (x.email || "").toLowerCase().includes(searchKey.toLowerCase()) || (x.department || "").toLowerCase().includes(searchKey.toLowerCase()))
+                return ((x.display || "").toLowerCase().includes(searchKey.toLowerCase()) || (x.name || "").toLowerCase().includes(searchKey.toLowerCase()))
             });
         }
 
@@ -231,12 +231,42 @@ class ByGroups extends Component {
         });
     }
 
+    submitData = async () => {
+        const { userList, activeKey } = this.state;
+        let payload = { groups: [] }
+        let object = { users: [], groupId: activeKey }
+        userList.forEach(group => {
+            if(group.action === 'rejected') {
+                object.users.push({userId: group.value})
+            }
+        })
+        payload.groups.push(object)
+        this.setState({
+            isSaving: true
+        })
+        const data = await this._apiService.removeUserFromGroup(payload)
+        if (!data || data.error) {
+            message.error('something is wrong! please try again');
+            this.setState({
+                isSaving: false
+            })
+        } else {
+            message.success(data || "Successfully updated");
+            this.setState({
+                isSaving: false
+            })
+            // setTimeout(() => {
+            //     window.location.href = `/iga/${this.props.match.params.clientId}/dashboard`;
+            // }, 1000);
+        }
+    }
+
     render() {
-        const { isSidebar, userList, groupList, activeKey, selected, searchKey, searchGroup } = this.state;
+        const { isSidebar, userList, groupList, activeKey, selected, searchKey, searchGroup, isLoadingGroups } = this.state;
         const getInitials = (firstName, lastName) => {
             return `${(firstName || '').length ? firstName.substr(0, 1).toUpperCase() : ''}${(lastName || '').length ? lastName.substr(0, 1).toUpperCase() : ''}`
         };
-        const mainRecord = groupList && groupList.length ? (groupList || []).find(x => x.name === activeKey) : {};
+        const mainRecord = groupList && groupList.length ? (groupList || []).find(x => x.id === activeKey) : {};
         const array = mainRecord && mainRecord.name && mainRecord.name.length ? (mainRecord.name || []).split(" ") : []
         const firstName = array && array.length && array[0] || ""
         const lastName = array && array.length && array[1] || ""
@@ -270,81 +300,92 @@ class ByGroups extends Component {
                                 onChange={this.onChange}
                             />
                         </div>
-                        <div className="inner-profile">
-                            <Icon type="left" onClick={this.onPrevUser} className="profile-nav-arrow"/>
-                            <Icon type="right" onClick={this.onNextUser} className="profile-nav-arrow right-arrow"/>
-                            <div className="text-center overflow-hidden">
-                                <div className="initial-name-inner-profile"
-                                     style={{background: mainRecord && mainRecord.color || 'red'}}>{(firstName || 'A').substr(0, 1)}{(lastName || 'B').substr(0, 1)}</div>
-                                <div
-                                    className="UName">{firstName} {lastName}</div>
-                                <div
-                                    className="UDesignation">{mainRecord && mainRecord.userInfo && mainRecord.userInfo.Title}</div>
-                                <div
-                                    className="UDesignation mb-10">{mainRecord && mainRecord.email}</div>
-                                <div className="box-part-a">
-                                    <div>
-                                        <span>Identity: </span><b>{mainRecord && mainRecord.userInfo && mainRecord.userInfo.UserName}</b>
-                                    </div>
-                                    <div>
-                                        <span>Department: </span><b>{mainRecord && mainRecord.department}</b>
-                                    </div>
-                                    {/*<div>
+
+                        {
+                            isLoadingGroups ?
+                                <div className="text-center">
+                                    <Spin className='color-white mr-10'/>
+                                </div> :
+                                <>
+                                    <div className="inner-profile">
+                                        <Icon type="left" onClick={this.onPrevUser} className="profile-nav-arrow"/>
+                                        <Icon type="right" onClick={this.onNextUser}
+                                              className="profile-nav-arrow right-arrow"/>
+                                        <div className="text-center overflow-hidden">
+                                            <div className="initial-name-inner-profile"
+                                                 style={{background: mainRecord && mainRecord.color || 'red'}}>{(firstName || 'A').substr(0, 1)}{(lastName || 'B').substr(0, 1)}</div>
+                                            <div
+                                                className="UName">{mainRecord && mainRecord.displayName}</div>
+                                            <div
+                                                className="UDesignation">{mainRecord && mainRecord.userInfo && mainRecord.userInfo.Title}</div>
+                                            <div
+                                                className="UDesignation mb-10">{mainRecord && mainRecord.email}</div>
+                                            <div className="box-part-a">
+                                                <div>
+                                                    <span>Identity: </span><b>{mainRecord && mainRecord.userInfo && mainRecord.userInfo.UserName}</b>
+                                                </div>
+                                                <div>
+                                                    <span>Department: </span><b>{mainRecord && mainRecord.department}</b>
+                                                </div>
+                                                {/*<div>
                                         <span>Hire Date: </span><b></b>
                                     </div>*/}
-                                </div>
-                                <div className="box-part-a overflow-auto">
-                                    <div className="float-left">
-                                        <div>
-                                            <span>Applications: </span><b>{mainRecord && mainRecord.noOfApplications}</b>
-                                        </div>
-                                        <div>
-                                            <span>Entitlements: </span><b>{mainRecord && mainRecord.numOfEntitlements}</b>
+                                            </div>
+                                            <div className="box-part-a overflow-auto">
+                                                <div className="float-left">
+                                                    <div>
+                                                        <span>Applications: </span><b>{mainRecord && mainRecord.noOfApplications}</b>
+                                                    </div>
+                                                    <div>
+                                                        <span>Entitlements: </span><b>{mainRecord && mainRecord.numOfEntitlements}</b>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            {
-                                (this.getFilteredGroups() || []).length ?
-                                    <Tabs
-                                        activeKey={activeKey}
-                                        tabPosition={"right"}
-                                        className='custom-font-size mt-20 user-tab-list'
-                                        onChange={this.onChangeTab}
-                                    >
+                                    <div>
                                         {
-                                            (this.getFilteredGroups() || []).map((item) => {
-                                                const array = item.name.split(" ")
-                                                const first = array && array.length && array[0] || ""
-                                                const last = array && array.length && array[1] || ""
-                                                return (
-                                                    <TabPane
-                                                        tab={
-                                                            <div className="user-list-item">
+                                            (this.getFilteredGroups() || []).length ?
+                                                <Tabs
+                                                    activeKey={activeKey}
+                                                    tabPosition={"right"}
+                                                    className='custom-font-size mt-20 user-tab-list'
+                                                    onChange={this.onChangeTab}
+                                                >
+                                                    {
+                                                        (this.getFilteredGroups() || []).map((item) => {
+                                                            const array = item.displayName.split(" ")
+                                                            const first = array && array.length && array[0] || ""
+                                                            const last = array && array.length && array[1] || ""
+                                                            return (
+                                                                <TabPane
+                                                                    tab={
+                                                                        <div className="user-list-item">
                                                                <span className="initialName mr-10"
                                                                      style={{background: item.color || 'red'}}>
                                                                    {getInitials(first, last)}
                                                                </span>
-                                                               <span className="initial-name">
+                                                                            <span className="initial-name">
                                                                     {first}{' '}{last}
                                                                </span>
-                                                            </div>
-                                                        }
-                                                        key={item.name}
-                                                        type="card"
-                                                    >
-                                                    </TabPane>
-                                                )
-                                            })
+                                                                        </div>
+                                                                    }
+                                                                    key={item.id}
+                                                                    type="card"
+                                                                >
+                                                                </TabPane>
+                                                            )
+                                                        })
+                                                    }
+                                                </Tabs> :
+                                                <div className="no-user-found color-white text-center mt-10">
+                                                    No Groups Found
+                                                </div>
                                         }
-                                    </Tabs> :
-                                    <div className="no-user-found color-white text-center mt-10">
-                                        No Groups Found
                                     </div>
-                            }
-                        </div>
+                                </>
+                        }
+
                     </div> : null
                 }
 
@@ -364,7 +405,9 @@ class ByGroups extends Component {
                         searchKey={searchKey}
                         selected={selected}
                         changedCount={changedCount}
-                        submitData={() => {}}
+                        isSaving={this.state.isSaving}
+                        isLoading={this.state.isLoadingUsers}
+                        submitData={this.submitData}
                     />
                 </div>
             </div>

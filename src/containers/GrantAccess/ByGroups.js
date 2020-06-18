@@ -403,6 +403,9 @@ class ByGroups extends Component {
             this.setState({
                 isSaving: false
             })
+            setTimeout(() => {
+                window.location.href = `/iga/${this.props.match.params.clientId}/dashboard`;
+            }, 2000);
         }
     }
 

@@ -16,22 +16,22 @@ class RevokeAccessDataTable extends Component {
   }
 
   tab = () => {
-    const { isLoadingUser, selected, onCheckBoxChange, undoDecision, onUpdateStatus, onToggleComment, getFilterData, dataType } = this.props;
+    const { isLoadingUser, selected, onCheckBoxChange, undoDecision, onUpdateStatus, onToggleComment, getFilterData, dataType, isLoading } = this.props;
     const columns = [];
     if(dataType === "user") {
       columns.push(
         {
           title: '',
-          width: 30,
+          width: 50,
           render: (record) => {
             return (
-                <div>
-                  <Checkbox
-                      className={'custom-check-box pl-10'}
-                      checked={selected.includes(record.key)}
-                      onChange={(e) => onCheckBoxChange(record.key, e)}
-                  />
-                </div>
+              <div>
+                <Checkbox
+                    className={'custom-check-box pl-10'}
+                    checked={selected.includes(record.key)}
+                    onChange={(e) => onCheckBoxChange(record.key, e)}
+                />
+              </div>
             )
           }
         },
@@ -40,7 +40,7 @@ class RevokeAccessDataTable extends Component {
           render: (record) => {
             return (<span className="ws-nowrap">
             {
-              record.name
+              record.groupName
             }
           </span>);
           }
@@ -59,16 +59,6 @@ class RevokeAccessDataTable extends Component {
           title: 'Decision',
           width: 200,
           render: (record) => {
-            const menu = (
-              <Menu>
-                <Menu.Item>
-                  <span className="text-primary ml-5 cursor-pointer">Certify Conditionally</span>
-                </Menu.Item>
-                <Menu.Item>
-                  <span className="text-primary ml-5 cursor-pointer" onClick={() => undoDecision(record.key)}>Undo decision</span>
-                </Menu.Item>
-              </Menu>
-            );
             const action = get(record, 'action');
 
             return (
@@ -79,9 +69,6 @@ class RevokeAccessDataTable extends Component {
                 >
                   {action === 'rejected' ? 'Revoked' : 'Revoke'}
                 </span>
-                <Dropdown overlay={menu} trigger={['click']}>
-                  <Icon type="unordered-list" className='text-primary'/>
-                </Dropdown>
               </div>
             )
           }
@@ -92,7 +79,7 @@ class RevokeAccessDataTable extends Component {
       columns.push(
         {
           title: '',
-          width: 30,
+          width: 50,
           render: (record) => {
             return (
                 <div>
@@ -103,44 +90,32 @@ class RevokeAccessDataTable extends Component {
           }
         },
         {
-          title: 'First Name',
+          title: 'User Name',
           render: (record) => {
             return (<span>
             {
-              record && record.givenName
+              record && record.name
             }
           </span>);
           }
         },
         {
-          title: 'Last Name',
+          title: 'Display Name',
           render: (record) => {
             return (<span>
             {
-              record && record.familyName
+              record && record.display
             }
           </span>);
           }
         },
         {
-          title: 'Identity',
+          title: 'Type',
           render: (record) => {
             return (
               <span>
                 {
-                  record && record.userName
-                }
-              </span>
-            );
-          }
-        },
-        {
-          title: 'Email',
-          render: (record) => {
-            return (
-              <span>
-                {
-                  record && record.email
+                  record && record.type
                 }
               </span>
             );
@@ -204,6 +179,7 @@ class RevokeAccessDataTable extends Component {
                   className={`user-profile-data no-padding-table`}
                   dataSource={getFilterData()}
                   scroll={{x: 992}}
+                  loading={isLoading || false}
                 />
               </div>
             </Col>
@@ -214,7 +190,7 @@ class RevokeAccessDataTable extends Component {
   }
 
   render() {
-    const { onSelectAll, groupList, confirmRevokeSelected, onChange, selected, searchKey, changedCount, submitData, userList, activeKey, dataType } = this.props;
+    const { onSelectAll, groupList, confirmRevokeSelected, onChange, selected, searchKey, changedCount, submitData, userList, activeKey, dataType, isSaving, isLoading } = this.props;
     const type = dataType === "group" ? "Users" : "Groups"
     return (
       <div className="custom-content">
@@ -269,20 +245,27 @@ class RevokeAccessDataTable extends Component {
               {
                 userList.map(item => {
                   const name = this.props.dataType === "group" ? "name" : "userName"
-                  if (item[name] === activeKey) {
+                  if (item.id === activeKey) {
                     return this.tab(item)
                   }
                   return null;
                 })
               }
-
             </Row>
             <div className="sticky-btn cstm-btn">
               <Button
-                className="icon square float-right mb-0"
-                size={"large"} color="primary"
-                disabled={changedCount === 0}
-                onClick={submitData}>
+                  className="icon square float-right mb-0"
+                  size={"large"} color="primary"
+                  disabled={changedCount === 0 || isSaving}
+                  onClick={submitData}
+              >
+                <span>
+                  {
+                    isSaving ?
+                        <Spin className='color-white mr-10'/> :
+                        null
+                  }
+                </span>
                 Save & Review Later ({changedCount && changedCount})
               </Button>
             </div>

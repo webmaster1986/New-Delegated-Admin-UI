@@ -22,9 +22,12 @@ class MyProfile extends Component {
             identityUsersList: [],
             isLoading: false,
             isAddUser: false,
+            isSaving: false,
             isModifyUser: false, // !!query.id,
             selectedRecord: {},
-            newUser: {},
+            newUser: {
+                active: true
+            },
             profile: {},
             totalResource: 0,
             defaultCurrent: 1,
@@ -55,8 +58,10 @@ class MyProfile extends Component {
         }
         let filteredUserData = identityUsersList || [];
         filteredUserData = filteredUserData.filter(x => {
-            const name =  `${(x.FirstName || '')} ${(x.LastName || '')}`;
-            return (name.toLowerCase().includes(searchUser.toLowerCase())) || (x.UserName.toLowerCase().includes(searchUser.toLowerCase())) || (x.Email.toLowerCase().includes(searchUser.toLowerCase()));
+            const displayName =  x.displayName || "";
+            const emails =  x.emails || "";
+            const userName =  x.userName || "";
+            return (displayName.toLowerCase().includes(searchUser.toLowerCase())) || (emails.toLowerCase().includes(searchUser.toLowerCase())) || (userName.toLowerCase().includes(searchUser.toLowerCase()));
         });
         return filteredUserData;
     }
@@ -79,15 +84,15 @@ class MyProfile extends Component {
             }
             this.setState({
                 identityUsersList: data || [],
-                // totalResource: data.totalResource,
-                selectedRecord
-            }, async () => {
+                selectedRecord,
+                isLoading: false,
+            }/*, async () => {
                 const filteredUserData = await this.getFilteredUsers(true)
                 this.setState({
                     isLoading: false,
                     profile: filteredUserData.length ? filteredUserData[0] : {},
                 })
-            })
+            }*/)
         }
 
     }
@@ -171,8 +176,28 @@ class MyProfile extends Component {
 
     onSaveNewUser = async () => {
         const { newUser } = this.state
+        newUser.locked = false
+        newUser.department = "Accounting"
+        this.setState({
+            isSaving: true
+        })
         const data = await this._apiService.createUser(newUser)
-        console.log({data})
+        if (!data || data.error) {
+            message.error('something is wrong! please try again');
+            this.setState({
+                isSaving: false
+            })
+        } else {
+            message.success("User created Successfully");
+            this.setState({
+                isSaving: false,
+                isAddUser: false,
+                isModifyUser: false,
+                newUser: {
+                    active: true
+                }
+            })
+        }
     }
 
     onChange = (event) => {
@@ -184,9 +209,18 @@ class MyProfile extends Component {
         })
     }
 
+    onIdentityStatusSet = (value) => {
+        this.setState({
+            newUser: {
+                ...this.state.newUser,
+                active: value
+            }
+        })
+    }
+
     render() {
-        const {isLoading, isModifyUser, selectedRecord, profile, activeKey, searchUser, isAddUser, newUser} = this.state;
-        const { firstname, manager, middleName, organization, lastName, emails, displayName, userType  } = newUser || {}
+        const { isLoading, isModifyUser, selectedRecord, profile, activeKey, searchUser, isAddUser, newUser, isSaving } = this.state;
+        const { firstname, manager, middleName, organization, lastName, emails, displayName, userType, userName, active } = newUser || {}
         return(
           <div className="dashboard create-user">
               <Tabs defaultActiveKey={activeKey} onChange={this.onTabChange}>
@@ -247,8 +281,26 @@ class MyProfile extends Component {
                                                                 <Button className="square ml-10" size={"large"} color="primary">Update</Button>
                                                             </> : null
                                                     }
-                                                    <Button className="square ml-10" size={"large"} color="primary" onClick={this.onSaveNewUser}>Save</Button>
-                                                    <Button className="square ml-10" size={"large"} color="primary" onClick={this.onAddUser}>&nbsp;<a><img src={require("../../images/multiply.png")} style={{width: 20}} /></a></Button>
+                                                    <Button
+                                                        className="square ml-10"
+                                                        size={"large"}
+                                                        color="primary"
+                                                        onClick={this.onSaveNewUser}
+                                                    >
+                                                        {
+                                                            isSaving ?
+                                                                <Spin className='color-white mr-10'/> : null
+                                                        }
+                                                        Save
+                                                    </Button>
+                                                    <Button
+                                                        className="square ml-10"
+                                                        size={"large"}
+                                                        color="primary"
+                                                        onClick={this.onAddUser}
+                                                    >
+                                                        &nbsp;<a><img src={require("../../images/multiply.png")} style={{width: 20}} /></a>
+                                                    </Button>
                                                 </div>
                                             }
                                         </Col>
@@ -291,14 +343,14 @@ class MyProfile extends Component {
                                                         />
                                                     </Col>
                                                     <Col md={2} sm={12} xs={12}>
-                                                        <span><b>Organization</b></span>
+                                                        <span><b>User Name</b></span>
                                                     </Col>
                                                     <Col md={4} sm={12} xs={12}>
                                                         <Input
-                                                            value={organization}
-                                                            onChange={this.onChange}
-                                                            name="organization"
                                                             className="mt-10"
+                                                            onChange={this.onChange}
+                                                            name="userName"
+                                                            value={userName}
                                                         />
                                                     </Col>
                                                     <Col md={2} sm={12} xs={12}>
@@ -309,6 +361,17 @@ class MyProfile extends Component {
                                                             name="lastName"
                                                             value={lastName}
                                                             onChange={this.onChange}
+                                                            className="mt-10"
+                                                        />
+                                                    </Col>
+                                                    <Col md={2} sm={12} xs={12}>
+                                                        <span><b>Organization</b></span>
+                                                    </Col>
+                                                    <Col md={4} sm={12} xs={12}>
+                                                        <Input
+                                                            value={organization}
+                                                            onChange={this.onChange}
+                                                            name="organization"
                                                             className="mt-10"
                                                         />
                                                     </Col>
@@ -345,13 +408,12 @@ class MyProfile extends Component {
                                                             className="mt-10"
                                                         />
                                                     </Col>
-                                                    <Col md={6}/>
                                                     <Col md={2} sm={12} xs={12}>
                                                         <span><b>Identity Status</b></span>
                                                     </Col>
                                                     <Col md={4} sm={12} xs={12}>
-                                                        <Button type="primary" size="small" className="mt-10 mr-10">Active</Button>
-                                                        <Button size="small" className="mt-10">Inactive</Button>
+                                                        <Button type={active ? "primary" : ''} size="small" className="mt-10 mr-10" onClick={() => this.onIdentityStatusSet(true)}>Active</Button>
+                                                        <Button type={!active ? "primary" : ''} size="small" className="mt-10" onClick={() => this.onIdentityStatusSet(false)}>Inactive</Button>
                                                     </Col>
                                                 </Row> :
                                                 <Row>

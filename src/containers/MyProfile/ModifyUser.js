@@ -176,7 +176,7 @@ class ModifyUser extends Component {
   
   Attributes = () => {
     const {FirstName, Manager, LastName, Email, Title, UserType, MiddleName, LicenseID, LicenseName, LicenseExpiry, TrainingExpiry, TrainingCompletion, TrainingType} = this.state;
-    const displayName = ` ${FirstName}${' '}${LastName}`
+    const displayName = ` ${FirstName || ""}${' '}${LastName || ""}`
     return(
       <div>
           <Row className="align-items-center">
