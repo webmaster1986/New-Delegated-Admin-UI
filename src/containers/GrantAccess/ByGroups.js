@@ -398,15 +398,28 @@ class ByGroups extends Component {
                         <Card>
                             <CardHeader className='custom-card-header'>
                                 <Row className="main-div">
-                                    <Col md={10} sm={12} xs={12}>
-                                        <Col md={6} sm={12} xs={12} className="d-flex">
+                                    <Col md={6} sm={12} xs={12} className="d-flex">
                                             <span className="cursor-pointer ml-5 mr-5">
                                                 <a>
                                                     <img src={require("../../images/request.png")} style={{width: 40}}/>
                                                 </a>
                                             </span>
-                                            <h4 className="mt-10">Grant Access By Groups</h4>
-                                        </Col>
+                                        <h4 className="mt-10">Grant Access By Groups</h4>
+                                    </Col>
+                                    <Col md={6} sm={12} xs={12}>
+                                        {
+                                            current === 1 ?
+                                                <div className="text-right">
+                                                    <Button
+                                                        className="square mr-10"
+                                                        size={"large"}
+                                                        color="primary"
+                                                        onClick={this.onCopyGroupModal}
+                                                    >
+                                                        Copy Groups from a User
+                                                    </Button>
+                                                </div> : null
+                                        }
                                     </Col>
                                 </Row>
                             </CardHeader>
@@ -420,27 +433,22 @@ class ByGroups extends Component {
                                                     <Col md="12" sm="12">
                                                         {
                                                             current === 1 ?
-                                                                <>
-                                                                    <div className="text-right">
-                                                                        <Button color="primary" className="copy-button" onClick={this.onCopyGroupModal}>Copy Groups from a User</Button>
-                                                                    </div>
-                                                                    <TableTransfer
-                                                                        className="mt-20"
-                                                                        dataSource={groupsList || []}
-                                                                        targetKeys={selectedGroupsKeys}
-                                                                        showSearch
-                                                                        listStyle={{
-                                                                            width: 525,
-                                                                            // height: 300,
-                                                                            overflowY: 'auto'
-                                                                        }}
-                                                                        operations={['Select', 'Unselect']}
-                                                                        onChange={this.handleGroupChange}
-                                                                        filterOption={this.filterOption}
-                                                                        leftColumns={this.getGroupsColumns(true)}
-                                                                        rightColumns={this.getGroupsColumns(true)}
-                                                                    />
-                                                                </> : null
+                                                                <TableTransfer
+                                                                    className="mt-20"
+                                                                    dataSource={groupsList || []}
+                                                                    targetKeys={selectedGroupsKeys}
+                                                                    showSearch
+                                                                    listStyle={{
+                                                                        width: 525,
+                                                                        // height: 300,
+                                                                        overflowY: 'auto'
+                                                                    }}
+                                                                    operations={['Select', 'Unselect']}
+                                                                    onChange={this.handleGroupChange}
+                                                                    filterOption={this.filterOption}
+                                                                    leftColumns={this.getGroupsColumns(true)}
+                                                                    rightColumns={this.getGroupsColumns(true)}
+                                                                /> : null
                                                         }
                                                     </Col>
                                                 </Row>
@@ -451,7 +459,9 @@ class ByGroups extends Component {
                                     { current === 1 &&
                                         <Button
                                             disabled={!selectedGroupsKeys.length}
-                                            className="float-right" type="primary" onClick={this.next}
+                                            className="square float-right"
+                                            type="primary"
+                                            onClick={this.next}
                                         >
                                             Next
                                         </Button>

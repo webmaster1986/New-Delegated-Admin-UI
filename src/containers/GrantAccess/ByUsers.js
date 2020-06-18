@@ -405,7 +405,7 @@ class ByUsers extends Component {
                         <Card>
                             <CardHeader className='custom-card-header'>
                                 <Row className="main-div">
-                                    <Col md={10} sm={12} xs={12}>
+                                    <Col md={6} sm={12} xs={12}>
                                         <Col md={6} sm={12} xs={12} className="d-flex">
                                             <span className="cursor-pointer ml-5 mr-5">
                                                 <a>
@@ -414,6 +414,21 @@ class ByUsers extends Component {
                                             </span>
                                             <h4 className="mt-10">Grant Access By Users</h4>
                                         </Col>
+                                    </Col>
+                                    <Col md={6} sm={12} xs={12}>
+                                        {
+                                            current === 1 ?
+                                                <div className="text-right">
+                                                    <Button
+                                                        className="square mr-10"
+                                                        size={"large"}
+                                                        color="primary"
+                                                        onClick={this.onCopyUserModal}
+                                                    >
+                                                        Copy Users from another Group
+                                                    </Button>
+                                                </div> : null
+                                        }
                                     </Col>
                                 </Row>
                             </CardHeader>
@@ -427,27 +442,22 @@ class ByUsers extends Component {
                                                     <Col md="12" sm="12">
                                                         {
                                                             current === 1 ?
-                                                                <>
-                                                                    <div className="text-right">
-                                                                        <Button color="primary" className="copy-button" onClick={this.onCopyUserModal}>Copy Users from another Group</Button>
-                                                                    </div>
-                                                                    <TableTransfer
-                                                                        className="mt-20"
-                                                                        dataSource={userList || []}
-                                                                        targetKeys={selectedUsersKeys}
-                                                                        showSearch
-                                                                        listStyle={{
-                                                                            width: 525,
-                                                                            // height: 300,
-                                                                            overflowY: 'auto'
-                                                                        }}
-                                                                        operations={['Select', 'Unselect']}
-                                                                        onChange={this.handleUserChange}
-                                                                        filterOption={this.filterOption}
-                                                                        leftColumns={this.getUsersColumns(true)}
-                                                                        rightColumns={this.getUsersColumns(true)}
-                                                                    />
-                                                                </> : null
+                                                                <TableTransfer
+                                                                    className="mt-20"
+                                                                    dataSource={userList || []}
+                                                                    targetKeys={selectedUsersKeys}
+                                                                    showSearch
+                                                                    listStyle={{
+                                                                        width: 525,
+                                                                        // height: 300,
+                                                                        overflowY: 'auto'
+                                                                    }}
+                                                                    operations={['Select', 'Unselect']}
+                                                                    onChange={this.handleUserChange}
+                                                                    filterOption={this.filterOption}
+                                                                    leftColumns={this.getUsersColumns(true)}
+                                                                    rightColumns={this.getUsersColumns(true)}
+                                                                /> : null
                                                         }
                                                     </Col>
                                                 </Row>
@@ -458,7 +468,9 @@ class ByUsers extends Component {
                                     { current === 1 &&
                                         <Button
                                             disabled={!selectedUsersKeys.length}
-                                            className="float-right" type="primary" onClick={this.next}
+                                            className="square float-right"
+                                            type="primary"
+                                            onClick={this.next}
                                         >
                                             Next
                                         </Button>

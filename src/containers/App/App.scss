@@ -350,3 +350,39 @@ body {
 .ws-nowrap {
   white-space: nowrap;
 }
+
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid #a7a7a7;
+}
+
+.ant-tabs-bar {
+  border-bottom: 1px solid #a7a7a7;
+}
+
+.ant-transfer-list-header {
+  border-bottom: 1px solid #a7a7a7;
+}
+
+.ant-transfer-list {
+  border: 1px solid #a7a7a7;
+}
+
+.ant-input {
+  border: 1px solid #a7a7a7;
+}
+
+.ant-select-selection {
+  border: 1px solid #a7a7a7;
+}
+
+body .ant-table-small > .ant-table-content > .ant-table-body > table > .ant-table-thead > tr > th {
+  background-color: #dbdddf !important;
+}
+
+hr {
+  border-top: 1px solid #a7a7a7;
+}
+
+.ant-popover-inner-content {
+  padding: 5px;
+}
