@@ -1,0 +1,50 @@
+@import "../../scss/variables";
+.request{
+  .add-to-cart.ant-btn.square{
+        background: #1d592e !important;
+
+      }
+  .add-to-cart-select.ant-btn.square{
+    background: #60b979 !important;
+
+  }
+  .edit.add-to-cart.ant-btn.square{
+    background: #1d592e !important;
+    height: 25px;
+  }
+.user-header{
+  background: #ade4bc;
+}
+  .ant-select-sm .ant-select-selection--single {
+    height: 40px !important;
+    border-radius: 0 !important;
+    padding-top: 4px !important;
+    .ant-select-selection__rendered {
+      line-height: 30px !important;
+    }
+  }
+
+  .main-table table tr td .ant-btn {
+    width: auto !important;
+    height: 40px !important;
+    color: #ffffff !important;
+    background: #1d592e !important;
+    font-size: 16px !important;
+  }
+
+  .ant-input {
+    height: 40px !important;
+    border-radius: 0 !important;
+  }
+  .btn-round-label {
+    position: absolute;
+    left: 2px;
+    background: #60b979;
+    border-radius: 20px;
+    padding: 5px;
+    width: 30px;
+    top: -23px;
+    height: 30px;
+    padding-top: 4px;
+  }
+}

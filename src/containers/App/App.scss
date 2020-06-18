@@ -3,9 +3,9 @@
 @font-face {
   font-family: 'DroidSans-Bold';
   src: url('../../scss/font/DroidSans-Bold.eot') format('embedded-opentype'),
-       url('../../scss/font/DroidSans-Bold.woff') format('woff'),
-       url('../../scss/font/DroidSans-Bold.ttf')  format('truetype'),
-       url('../../scss/font/DroidSans-Bold.svg#DroidSans-Bold') format('svg');
+  url('../../scss/font/DroidSans-Bold.woff') format('woff'),
+  url('../../scss/font/DroidSans-Bold.ttf')  format('truetype'),
+  url('../../scss/font/DroidSans-Bold.svg#DroidSans-Bold') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -13,9 +13,9 @@
 @font-face {
   font-family: 'DroidSans';
   src: url('../../scss/font/DroidSans.eot?#iefix') format('embedded-opentype'),
-       url('../../scss/font/DroidSans.woff') format('woff'),
-       url('../../scss/font/DroidSans.ttf')  format('truetype'),
-       url('../../scss/font/DroidSans.svg#DroidSans') format('svg');
+  url('../../scss/font/DroidSans.woff') format('woff'),
+  url('../../scss/font/DroidSans.ttf')  format('truetype'),
+  url('../../scss/font/DroidSans.svg#DroidSans') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -28,79 +28,79 @@ b, strong{
 }
 
 .left-profile{
-    background-color: #d8e8ef;
-    border-radius: 5px;
-    padding: 15px;
-    position: relative;
-    margin-bottom: 20px;
-    border-bottom: 3px solid #7bcdf1;
-      .flex-container {
-        height: 100%;
-        padding: 0;
-        margin: 0;
-        display: -webkit-box;
-        display: -moz-box;
-        display: -ms-flexbox;
-        display: -webkit-flex;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .user-avtar {
-      background-color: tomato;
-      padding: 25px 20px;
-      line-height: 20px;
-      color: white;
-      font-family: $font-family-bold;
-      font-size: 2em;
-      text-align: center;
-      border-radius: 50%;
-    }
-    .user-detail{
-      padding: 10px 0 10px 0;
-    }
-    .user-value{
-      display: block;
-        float: right;
-        width: 60%;
-        text-align: left;
-        font-size: 15px;
-        padding-left: 5px;
-        line-height: 24px;
-        color: #1f2544;
-    }
-    .user-point{
-      float: left;
-      width: 40%;
-      text-align: right;
-      font-size: 13px;
-      line-height: 24px;
-      padding-right: 5px;
-      color: #9c9696;
-    }
-    .w-40{
-      width: 40% !important;
-    }
-    .w-60{
-      width: 60% !important;
-    }
-    .bg-opacity{
-      background: rgba(0, 0, 0, 0.04);
-    }
-    .profile-circle{
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      width: 35px;
-    }
-    .ant-progress-inner{
-      width: 35px !important;
-      height: 35px !important;
-      font-size: 15px !important;
-    }
-    svg:not(:root){
-      width: 35px !important;
-    }
+  background-color: #d8e8ef;
+  border-radius: 5px;
+  padding: 15px;
+  position: relative;
+  margin-bottom: 20px;
+  border-bottom: 3px solid #7bcdf1;
+  .flex-container {
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .user-avtar {
+    background-color: tomato;
+    padding: 25px 20px;
+    line-height: 20px;
+    color: white;
+    font-family: $font-family-bold;
+    font-size: 2em;
+    text-align: center;
+    border-radius: 50%;
+  }
+  .user-detail{
+    padding: 10px 0 10px 0;
+  }
+  .user-value{
+    display: block;
+    float: right;
+    width: 60%;
+    text-align: left;
+    font-size: 15px;
+    padding-left: 5px;
+    line-height: 24px;
+    color: #1f2544;
+  }
+  .user-point{
+    float: left;
+    width: 40%;
+    text-align: right;
+    font-size: 13px;
+    line-height: 24px;
+    padding-right: 5px;
+    color: #9c9696;
+  }
+  .w-40{
+    width: 40% !important;
+  }
+  .w-60{
+    width: 60% !important;
+  }
+  .bg-opacity{
+    background: rgba(0, 0, 0, 0.04);
+  }
+  .profile-circle{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 35px;
+  }
+  .ant-progress-inner{
+    width: 35px !important;
+    height: 35px !important;
+    font-size: 15px !important;
+  }
+  svg:not(:root){
+    width: 35px !important;
+  }
 }
 
 .ant-table .ant-table-thead tr th span {
@@ -109,7 +109,7 @@ b, strong{
 
 
 .cursor-pointer {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .custom-loading {

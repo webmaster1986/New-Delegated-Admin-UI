@@ -1,0 +1,89 @@
+@import "../../scss/variables";
+.user-detail-page {
+  display: flex;
+  padding-top: 35px;
+
+  .custom-side-bar {
+    width: 320px;
+    max-width: 320px;
+    background-color: $primary-color;
+    flex: 1;
+    margin-left: -10px;
+    min-height: calc(100vh - 60px);
+    margin-top: 25px;
+
+    .custom-inner-profile {
+      margin-left: 25px;
+      margin-right: 25px;
+      background-color: #eff2f9;
+      border-radius: 20px;
+
+    }
+    .user-search {
+      padding: 25px 35px;
+      .ant-input{
+        border-radius: 5px;
+      }
+    }
+
+    .user-list-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .initial-name {
+      color: $font-color;
+      font-size: 18px;
+    }
+
+    .initial-name-inner-profile {
+      width: 60px;
+      background: #111;
+      color: #fff;
+      border-radius: 30px;
+      font-size: 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+    }
+
+    .ant-tabs-nav-scroll {
+      max-height: 300px;
+    }
+
+
+  }
+
+  .ant-tabs .ant-tabs-right-bar {
+    border: none;
+      .ant-tabs-nav-wrap{
+        .ant-tabs-nav{
+          padding-left: 5px;
+      }
+    }
+  }
+
+  .dashboard {
+    flex: 1;
+  }
+
+  .sticky-btn{
+    ant-btn.square{
+      background: $color-black;
+      color: $color-white;
+      height: 50px;
+    }
+  }
+
+}
+
+.inner-profile-right .no-padding-table.user-profile-data .ant-table-body table tr > td {
+  padding-left: 0;
+  padding-right: 10px;
+}
+
+.no-wrap {
+  white-space: nowrap !important;
+}
