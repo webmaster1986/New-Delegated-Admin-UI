@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {Card, CardBody, Col, Row, CardHeader} from "reactstrap";
 import queryString from 'query-string'
 import './createUser.scss';
-import {Input, Button, message, Table, Switch, Spin, Tabs} from "antd";
+import {Input, Button, message, Table, Switch, Spin, Tabs, Select} from "antd";
 // import {ApiService} from "../../services";
 import {ApiService} from "../../services/ApiService1";
 import ModifyUser from "./ModifyUser";
@@ -188,6 +188,7 @@ class MyProfile extends Component {
                 isSaving: false
             })
         } else {
+            this.GetAllIdentityUsers()
             message.success("User created Successfully");
             this.setState({
                 isSaving: false,
@@ -195,7 +196,8 @@ class MyProfile extends Component {
                 isModifyUser: false,
                 newUser: {
                     active: true
-                }
+                },
+                searchUser: ''
             })
         }
     }
@@ -321,7 +323,7 @@ class MyProfile extends Component {
                                                             value={firstname}
                                                         />
                                                     </Col>
-                                                    <Col md={2} sm={12} xs={12}>
+                                                    {/*<Col md={2} sm={12} xs={12}>
                                                         <span><b>Manager</b></span>
                                                     </Col>
                                                     <Col md={4} sm={12} xs={12}>
@@ -330,7 +332,7 @@ class MyProfile extends Component {
                                                             onChange={this.onChange}
                                                             value={manager}
                                                         />
-                                                    </Col>
+                                                    </Col>*/}
                                                     <Col md={2} sm={12} xs={12}>
                                                         <span><b>Middle Name</b></span>
                                                     </Col>
@@ -401,12 +403,25 @@ class MyProfile extends Component {
                                                         <span><b>User Type</b></span>
                                                     </Col>
                                                     <Col md={4} sm={12} xs={12}>
-                                                        <Input
+                                                        <Select
+                                                            className="w-100-p mt-10"
                                                             name="userType"
                                                             value={userType}
-                                                            onChange={this.onChange}
-                                                            className="mt-10"
-                                                        />
+                                                            onChange={(value) => this.onChange({
+                                                                target: {
+                                                                    name: 'userType',
+                                                                    value
+                                                                }
+                                                            })}
+                                                        >
+                                                            <Select.Option value="employee">Employee</Select.Option>
+                                                            <Select.Option value="contractor">Contractor</Select.Option>
+                                                            <Select.Option value="intern">Intern</Select.Option>
+                                                            <Select.Option value="temporary">Temporary</Select.Option>
+                                                            <Select.Option value="service">Service</Select.Option>
+                                                            <Select.Option value="external">External</Select.Option>
+                                                            <Select.Option value="generic">Generic</Select.Option>
+                                                        </Select>
                                                     </Col>
                                                     <Col md={2} sm={12} xs={12}>
                                                         <span><b>Identity Status</b></span>

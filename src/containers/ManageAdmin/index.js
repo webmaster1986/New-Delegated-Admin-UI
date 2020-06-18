@@ -10,32 +10,32 @@ const {Option} = Select;
 const treeData = [
     {
         title: 'Update User',
-        value: 'updateUser',
+        value: 'Update User',
         key: '0'
     },
     {
         title: 'Disable/Enable User',
-        value: 'disable/EnableUser',
+        value: 'Disable/Enable User',
         key: '1'
     },
     {
         title: 'Delete User',
-        value: 'deleteUser',
+        value: 'Delete User',
         key: '2'
     },
     {
         title: 'Password Reset',
-        value: 'passwordReset',
+        value: 'Password Reset',
         key: '3'
     },
     {
         title: 'Add Users to Groups',
-        value: 'addUsersToGroups',
+        value: 'Add Users to Groups',
         key: '4'
     },
     {
         title: 'Remove Users to Groups',
-        value: 'removeUsersToGroups',
+        value: 'Remove Users to Groups',
         key: '5'
     },
 ];
@@ -43,7 +43,7 @@ const treeData = [
 const treeData1 = [
     {
         title: 'ALL',
-        value: 'all',
+        value: 'ALL',
         key: '0'
     }
 ];
@@ -91,14 +91,14 @@ class ManageAdmin extends Component {
                 },
                 {
                     roleName: 'Help Desk Admin',
-                    roles: [{role:'User Operation', value: ['Disable/Enable Users', 'Password Reset']}]
-                }
+                    roles: [{role:'Scope of Users', value: ['ALL']},{role:'User Operation', value: ['Disable/Enable Users', 'Password Reset']},{role:'Scope of Groups', value: ['ALL']}]
+                },
             ],
             newAdmin: {
                 scopeOfUsers: [],
                 userOperation: [],
                 scopeOfGroups: [],
-                adminRoleName: '',
+                roleName: '',
             },
             isLoading: false,
             isAddNewAssignAdmin: false,
@@ -172,7 +172,7 @@ class ManageAdmin extends Component {
         let { newAdmin } = this.state
         const { name, value } = event.target
         let object = { [name]: value }
-        if(name === 'adminRoleName'){
+        if(name === 'roleName'){
             newAdmin[name] = value
             this.setState({
                 ...newAdmin
@@ -186,7 +186,26 @@ class ManageAdmin extends Component {
     }
 
     onSave = () => {
-        const { newAdmin } = this.state
+        let { newAdmin, adminRoleList } = this.state
+        let object = { roleName: newAdmin.roleName, roles: [] }
+        const array = ['scopeOfUsers', 'userOperation', 'scopeOfGroups']
+        array.forEach(x => {
+            if(newAdmin && newAdmin[x] && newAdmin[x].length){
+                const role = x === 'scopeOfUsers' ? 'Scope of Users' : x === 'userOperation' ? 'User Operation' : x === 'scopeOfGroups' ? 'Scope of Groups' : ''
+                object.roles.push({role, value: newAdmin[x]})
+            }
+        })
+        adminRoleList.push(object)
+        this.setState({
+            adminRoleList,
+            isAdminNewRole: !this.state.isAdminNewRole,
+            newAdmin: {
+                scopeOfUsers: [],
+                userOperation: [],
+                scopeOfGroups: [],
+                roleName: '',
+            },
+        })
     }
 
     onAddAssignNewAdmin = (isAddNewAssignAdmin) => {
@@ -364,7 +383,7 @@ class ManageAdmin extends Component {
                                 color="primary"
                                 onClick={this.onNewAdminRoleChange}
                             >
-                                Add a new Admin Role
+                                Add New Admin Role
                             </Button>
                         </div>}
                         bordered
@@ -383,15 +402,17 @@ class ManageAdmin extends Component {
     }
 
     onCheckboxChange = (name, value) => {
-        this.state.newAdmin[name] = value
         this.setState({
-            ...this.state.newAdmin
+            newAdmin: {
+                ...this.state.newAdmin,
+                [name]: value
+            }
         })
     }
 
     render() {
         const { isLoading, userList, current, isAddNewAssignAdmin, selectedUsers, isAdminNewRole, newAdmin } = this.state
-        const { userOperation, scopeOfGroups, scopeOfUsers, adminRoleName } = newAdmin || {}
+        const { userOperation, scopeOfGroups, scopeOfUsers, roleName } = newAdmin || {}
 
         const tProps = {
             treeData,
@@ -467,17 +488,20 @@ class ManageAdmin extends Component {
                                                             {current === 1 && this.secondStep()}
                                                         </Col>
                                                     </Row>
-                                                    <div className="text-right">
-                                                        <Button
-                                                            className="square mr-10"
-                                                            size={"large"}
-                                                            color="primary"
-                                                            disabled={!(selectedUsers || []).length}
-                                                            onClick={() => this.setState({current: 1})}
-                                                        >
-                                                            Next
-                                                        </Button>
-                                                    </div>
+                                                    {
+                                                        current === 0 ?
+                                                            <div className="text-right">
+                                                                <Button
+                                                                    className="square mr-10"
+                                                                    size={"large"}
+                                                                    color="primary"
+                                                                    disabled={!(selectedUsers || []).length}
+                                                                    onClick={() => this.setState({current: 1})}
+                                                                >
+                                                                    Next
+                                                                </Button>
+                                                            </div> : null
+                                                    }
                                                 </>
                                             }
                                         </>
@@ -489,17 +513,17 @@ class ManageAdmin extends Component {
                 </Row>
 
                 <Modal
-                    title="Add new Admin Role"
+                    title="Add New Admin Role"
                     visible={isAdminNewRole}
                     onCancel={this.onNewAdminRoleChange}
-                    onOk={this.onNewAdminRoleChange}
-                    okButtonProps={{disabled: !adminRoleName}}
+                    onOk={this.onSave}
+                    okButtonProps={{disabled: !roleName}}
                 >
                     <div className="mb-10">
                         <p>
                             Admin Role Name
                         </p>
-                        <Input name="adminRoleName" value={adminRoleName} onChange={this.onChange}/>
+                        <Input name="roleName" value={roleName} onChange={this.onChange}/>
                     </div>
                     <div className="mb-10">
                         <p>

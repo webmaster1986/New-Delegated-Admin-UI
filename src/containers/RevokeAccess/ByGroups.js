@@ -366,7 +366,7 @@ class ByGroups extends Component {
                                                                    {getInitials(first, last)}
                                                                </span>
                                                                             <span className="initial-name">
-                                                                    {first}{' '}{last}
+                                                                    {item.displayName}
                                                                </span>
                                                                         </div>
                                                                     }

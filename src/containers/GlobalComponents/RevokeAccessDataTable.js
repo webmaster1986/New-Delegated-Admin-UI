@@ -79,7 +79,7 @@ class RevokeAccessDataTable extends Component {
       columns.push(
         {
           title: '',
-          width: 50,
+          width: 80,
           render: (record) => {
             return (
                 <div>

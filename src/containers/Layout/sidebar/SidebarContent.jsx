@@ -42,19 +42,19 @@ class SidebarContent extends Component {
                     <SidebarLink title="By Groups" route={`/${clientId}/revoke-access-by-groups`} onClick={this.hideSidebar} />
                 </SidebarCategory>
               {/*<SidebarLink title="My Profile" icon="diamond" route={`/${clientId}/my-profile`} onClick={this.hideSidebar}/>*/}
-              <SidebarCategory title="Request Access" icon="diamond">
+              {/*<SidebarCategory title="Request Access" icon="diamond">
                 <a href={`/iga/${clientId}/request/request-for-self`}>
                   <li className="sidebar__link"><p className="sidebar__link-title">Self</p></li>
                 </a>
                 <a href={`/iga/${clientId}/request/request-for-others`}>
                   <li className="sidebar__link"><p className="sidebar__link-title">Others</p></li>
                 </a>
-              </SidebarCategory>
+              </SidebarCategory>*/}
               <SidebarLink title="Track Request" icon="diamond" route={`/${clientId}/request/request-list`} onClick={this.hideSidebar}/>
               <SidebarLink title="Approve Access" icon="diamond" route={`/${clientId}/requests`} onClick={this.hideSidebar}/>
               <SidebarLink title="Certifications" icon="diamond" route={`/${clientId}/certification`} onClick={this.hideSidebar}/>
               <SidebarLink title="Reporting" icon="diamond" route={`/${clientId}/reporting`} onClick={this.hideSidebar}/>
-              <SidebarLink title="Manage Users" icon="diamond" route={`/${clientId}/manage-users`} onClick={this.hideSidebar}/>
+              {/*<SidebarLink title="Manage Users" icon="diamond" route={`/${clientId}/manage-users`} onClick={this.hideSidebar}/>*/}
             </ul>
             :
             <ul className="sidebar__block">

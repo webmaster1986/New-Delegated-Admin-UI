@@ -154,7 +154,7 @@ class ByGroups extends Component {
     }
 
     filterOption = (inputValue, option) => {
-        return  option.name.toLowerCase().indexOf(inputValue.toLowerCase()) > -1
+        return  (option.displayName || "").toLowerCase().indexOf(inputValue.toLowerCase()) > -1
     };
 
     next = () => {
