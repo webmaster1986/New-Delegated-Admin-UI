@@ -1,10 +1,12 @@
 import React, {Component} from 'react'
 import {Table, Switch, Spin, message, Card} from "antd";
-import {ApiService} from "../../services";
+// import {ApiService} from "../../services";
+import {ApiService} from "../../services/ApiService1";
 
 const gray = '#525f68'
 
 class DirectReports extends Component {
+  _apiService = new ApiService();
   state = {
     isSelf: false,
     isLoading: false,
@@ -20,19 +22,20 @@ class DirectReports extends Component {
     this.setState({
       isLoading: true
     });
-    const data = await ApiService.GetAllIdentityUsers(page);
+    // const data = await ApiService.GetAllIdentityUsers(page);
+    const data = await this._apiService.getAllUsers()
     if (!data || data.error) {
       this.setState({
         isLoading: false
       });
       return message.error('something is wrong! please try again');
     } else {
-      let userList = []
-      if(data && data.resources){
-        userList = (data.resources || []).filter(x => x.Email && x.Manager).filter(x => x.UserName !== userName && x.Manager === userName).splice(0, 4)
-      }
+      // let userList = []
+      // if(data && data.resources){
+      //   userList = (data.resources || []).filter(x => x.Email && x.Manager).filter(x => x.UserName !== userName && x.Manager === userName).splice(0, 4)
+      // }
       this.setState({
-        identityUsersList: userList || [],
+        identityUsersList: data && data.length ? data.splice(0,4) : [],
         isLoading: false
       })
     }
@@ -49,14 +52,14 @@ class DirectReports extends Component {
             style={{color: '#005293'}}
             onClick={() => this.props.history.push(`/${this.props.clientId}/my-profile?tab=2&id=${record.userId}`)}
           >
-            {record.UserName}
+            {record.userName}
           </span>
         )
       },
       {
         title: 'Display Name',
         width: '25%',
-        render: (record) => (<span>{record.FirstName}{' '}{record.LastName}</span>)
+        render: (record) => (<span>{record.displayName}</span>)
       },
       {
         title: 'User Type',

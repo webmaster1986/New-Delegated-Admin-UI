@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "universal-cookie";
-const apiEndPoint = 'http://a06861fc2e00.ngrok.io/idcsdemo/api';
+const apiEndPoint = 'http://ae33357b3476.ngrok.io/idcsdemo/api';
 const axiosInstance = axios.create({
   baseURL: '',
 });

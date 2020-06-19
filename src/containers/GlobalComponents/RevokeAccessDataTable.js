@@ -266,7 +266,7 @@ class RevokeAccessDataTable extends Component {
                         null
                   }
                 </span>
-                Save & Review Later ({changedCount && changedCount})
+                Submit ({changedCount && changedCount})
               </Button>
             </div>
           </CardBody>
