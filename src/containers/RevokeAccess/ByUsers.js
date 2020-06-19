@@ -258,9 +258,9 @@ class ByUsers extends Component {
             this.setState({
                 isSaving: false
             })
-            // setTimeout(() => {
-            //     window.location.href = `/iga/${this.props.match.params.clientId}/dashboard`;
-            // }, 2000);
+            setTimeout(() => {
+                window.location.reload()
+            }, 2000);
         }
     }
 
@@ -308,8 +308,8 @@ class ByUsers extends Component {
                                 </div> :
                                 <>
                                     <div className="inner-profile">
-                                        <Icon type="left" onClick={this.onPrevUser} className="profile-nav-arrow"/>
-                                        <Icon type="right" onClick={this.onNextUser} className="profile-nav-arrow right-arrow"/>
+                                        <Icon type="left" onClick={isLoadingGroup ? () => {} : this.onPrevUser} className={isLoadingGroup ? "profile-nav-arrow cursor-not-allowed" : "profile-nav-arrow"}/>
+                                        <Icon type="right" onClick={isLoadingGroup ? () => {} : this.onNextUser} className={isLoadingGroup ? "profile-nav-arrow right-arrow cursor-not-allowed" : "profile-nav-arrow right-arrow"}/>
                                         <div className="text-center overflow-hidden">
                                             <div className="initial-name-inner-profile"
                                                  style={{background: mainRecord && mainRecord.color || 'red'}}>{(mainRecord && mainRecord.firstname || 'A').substr(0, 1)}{(mainRecord && mainRecord.lastName || 'B').substr(0, 1)}</div>
@@ -348,8 +348,8 @@ class ByUsers extends Component {
                                                 <Tabs
                                                     activeKey={activeKey}
                                                     tabPosition={"right"}
-                                                    className='custom-font-size mt-20 user-tab-list'
-                                                    onChange={this.onChangeTab}
+                                                    className={isLoadingGroup ? 'custom-font-size mt-20 user-tab-list cursor-not-allowed' : 'custom-font-size mt-20 user-tab-list'}
+                                                    onChange={isLoadingGroup ? () => {} : this.onChangeTab}
                                                 >
                                                     {
                                                         (this.getFilteredUsers() || []).map((item) => {
@@ -359,17 +359,18 @@ class ByUsers extends Component {
                                                                 <TabPane
                                                                     tab={
                                                                         <div className="user-list-item">
-                                                               <span className="initialName mr-10"
-                                                                     style={{background: item.color || 'red'}}>
-                                                                   {getInitials(firstName, lastName)}
-                                                               </span>
+                                                                           <span className="initialName mr-10"
+                                                                                 style={{background: item.color || 'red'}}>
+                                                                               {getInitials(firstName, lastName)}
+                                                                           </span>
                                                                             <span className="initial-name">
-                                                                    {firstName}{' '}{lastName}
-                                                               </span>
+                                                                                {firstName}{' '}{lastName}
+                                                                           </span>
                                                                         </div>
                                                                     }
                                                                     key={item.id}
                                                                     type="card"
+                                                                    className={isLoadingGroup ? 'cursor-not-allowed': ''}
                                                                 >
                                                                 </TabPane>
                                                             )

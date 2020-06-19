@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {Card, CardBody, Col, Row, CardHeader} from "reactstrap";
 import queryString from 'query-string'
 import './createUser.scss';
-import {Input, Button, message, Table, Switch, Spin, Tabs, Select} from "antd";
+import {Input, Button, message, Table, Switch, Spin, Tabs, Select, Popconfirm} from "antd";
 // import {ApiService} from "../../services";
 import {ApiService} from "../../services/ApiService1";
 import ModifyUser from "./ModifyUser";
@@ -82,6 +82,9 @@ class MyProfile extends Component {
             if(data && data.length && id){
                 selectedRecord = (data || []).find(item => item.userId === id)
             }
+            data.forEach((x, i) => {
+                x.key = i
+            })
             this.setState({
                 identityUsersList: data || [],
                 selectedRecord,
@@ -141,7 +144,23 @@ class MyProfile extends Component {
             title: 'Locked',
             width: 150,
               render: (record) => (
-                <Switch size="small" className="green w-80 red" checkedChildren={'Unlocked'} unCheckedChildren={"Locked"} defaultChecked />
+                <>
+                    {/*<Switch size="small" className="green w-80 red" checkedChildren={'Unlocked'} unCheckedChildren={"Locked"} defaultChecked />*/}
+                    <Popconfirm
+                        title={(!record.active || false) ? 'Are you sure to make users Unlocked?' : 'Are you sure to make users Locked?'}
+                        okText={'Yes'}
+                        cancelText={'No'}
+                        onConfirm={() => this.onStatusChange(record.key, 'active')}
+                    >
+                        <Switch
+                            size="small"
+                            className="green w-80 red"
+                            checkedChildren={"Unlocked"}
+                            unCheckedChildren={"Locked"}
+                            checked={record.active}
+                        />
+                    </Popconfirm>
+                </>
               )
           });
         }
@@ -218,6 +237,12 @@ class MyProfile extends Component {
                 active: value
             }
         })
+    }
+
+    onStatusChange = (index, key) => {
+        let { identityUsersList } = this.state
+        identityUsersList[index][key] = !(identityUsersList[index][key])
+        this.setState({identityUsersList})
     }
 
     render() {

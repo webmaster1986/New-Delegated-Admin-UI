@@ -255,9 +255,9 @@ class ByGroups extends Component {
             this.setState({
                 isSaving: false
             })
-            // setTimeout(() => {
-            //     window.location.href = `/iga/${this.props.match.params.clientId}/dashboard`;
-            // }, 1000);
+            setTimeout(() => {
+                window.location.reload()
+            }, 1000);
         }
     }
 
@@ -309,8 +309,7 @@ class ByGroups extends Component {
                                 <>
                                     <div className="inner-profile">
                                         <Icon type="left" onClick={this.onPrevUser} className="profile-nav-arrow"/>
-                                        <Icon type="right" onClick={this.onNextUser}
-                                              className="profile-nav-arrow right-arrow"/>
+                                        <Icon type="right" onClick={this.onNextUser} className="profile-nav-arrow right-arrow"/>
                                         <div className="text-center overflow-hidden">
                                             <div className="initial-name-inner-profile"
                                                  style={{background: mainRecord && mainRecord.color || 'red'}}>{(firstName || 'A').substr(0, 1)}{(lastName || 'B').substr(0, 1)}</div>
