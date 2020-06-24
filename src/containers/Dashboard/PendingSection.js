@@ -6,21 +6,8 @@ import {
 import moment from "moment";
 import {Link} from "react-router-dom";
 import {ApiService} from "../../services";
-import Cookies from "universal-cookie";
 import ThumbsUp from "../../images/thumbs-up.png"
 import ThumbsDown from "../../images/thumbs-down.png"
-
-const cookies = new Cookies();
-const getUserName = () => {
-  return cookies.get('LOGGEDIN_USERID');
-}
-
-const colors = ['red', 'green', 'black', 'violet', '#a2a25d'];
-
-const getColor = (index) => {
-  const i = index % 5;
-  return colors[i] ? colors[i] : colors[0];
-}
 
 const blue = 'rgb(215, 37, 40)'
 const gray = 'rgb(0, 157, 219)'
@@ -42,8 +29,8 @@ class PendingSection extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      pendingApprovals: [],
-      pendingRequests: [],
+      recentGrantsList: [],
+      recentRevokesList: [],
       pendingCertifications: [],
     };
   }
@@ -73,18 +60,18 @@ class PendingSection extends Component {
 
   render() {
     const {clientId} = this.props
-    const {pendingApprovals, pendingRequests, pendingCertifications} = this.state
+    const {recentRevokesList, recentGrantsList, pendingCertifications} = this.state
     return (
       <div>
         <Row>
           <Col className="mb-10" xs={12} md={6} lg={4}>
             <Card
               title={<Link to={`/${clientId}/request/request-list`} style={{color: white}}>Recent Grants</Link>}
-              extra={<div className="total-digit">{pendingRequests.length || 0}</div>}
+              extra={<div className="total-digit">{recentGrantsList.length || 0}</div>}
               headStyle={customPanelStyle(blue)}
             >
               {
-                (pendingRequests || []).slice(0, 2).map((item,index) => (
+                (recentGrantsList || []).slice(0, 2).map((item,index) => (
                   <div key={index}>
                     <Row>
                       <Col md={12} lg={12}>
@@ -113,23 +100,23 @@ class PendingSection extends Component {
                 ))
               }
               {
-                (pendingRequests || []).length > 2 ?
-                    <div className="text-right">
-                      <Link to={`/${clientId}/request/request-list`}>More</Link>
-                    </div>
-                    : null
+                (recentGrantsList || []).length > 2 ?
+                  <div className="text-right">
+                    <Link to={`/${clientId}/request/request-list`}>More</Link>
+                  </div>
+                  : null
               }
             </Card>
           </Col>
           <Col className="mb-10" xs={12} md={6} lg={4}>
             <Card
                 title={<Link to={`/${clientId}/requests`} style={{color: white}}>Recent Revokes</Link>}
-                extra={<div className="total-digit">{pendingApprovals.length || 0}</div>}
+                extra={<div className="total-digit">{recentRevokesList.length || 0}</div>}
                 headStyle={customPanelStyle(gray)}
             >
               {
 
-                (pendingApprovals || []).slice(0, 2).map((item,index) => {
+                (recentRevokesList || []).slice(0, 2).map((item,index) => {
                   const entityName = item.entityName
                   let icon = ThumbsUp
                   if(entityName === "OCI_Administrators" || entityName === "Oracle Fusion Applications" || entityName === "Payroll Manager" || entityName === "Human Resource Manager") {
@@ -172,11 +159,11 @@ class PendingSection extends Component {
                 })
               }
               {
-                (pendingApprovals || []).length > 2 ?
-                    <div className="text-right">
-                      <Link to={`/${clientId}/requests`}>More</Link>
-                    </div>
-                    : null
+                (recentRevokesList || []).length > 2 ?
+                  <div className="text-right">
+                    <Link to={`/${clientId}/requests`}>More</Link>
+                  </div>
+                  : null
               }
             </Card>
           </Col>

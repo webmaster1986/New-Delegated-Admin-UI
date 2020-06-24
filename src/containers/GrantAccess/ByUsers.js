@@ -31,13 +31,16 @@ class ByUsers extends Component {
             isLoading: false,
             isSaving: false,
             copyUserModal: false,
+            isLoadingMirrorGroup: false,
             userList: [],
             groupList: [],
             selectedUsersKeys: [],
             selectedUsers: [],
             selectedItem: [],
+            mirrorGroupList: [],
             search: '',
-            selectedAdvisor: ''
+            selectedAdvisor: '',
+            selectedUser: ''
         };
     }
 
@@ -158,8 +161,8 @@ class ByUsers extends Component {
                 width: '5%',
                 render: (record, data) => {
                     return (
-                        <Radio.Group name="selectedUser"  onChange={this.onChange} value={this.state.selectedUser}>
-                            <Radio value={data.displayName} />
+                        <Radio.Group name="selectedUser" onChange={this.onChange} value={this.state.selectedUser}>
+                            <Radio value={data.id} />
                         </Radio.Group>
                     )
                 }
@@ -416,8 +419,42 @@ class ByUsers extends Component {
         }
     }
 
+    onMirrorReview = async (id) => {
+        this.setState({
+            isLoadingMirrorGroup: true
+        })
+        const data = await this._apiService.getUserGroups(id)
+        if (!data || data.error) {
+            this.setState({
+                isLoadingMirrorGroup: false
+            });
+            return message.error('something is wrong! please try again');
+        } else {
+            if(!(data.userGroups || []).length) {
+                return message.error('Selected user not associate with groups');
+            }
+            let { groupList, selectedItem } = this.state
+            data.userGroups.forEach(user => {
+                const index = (groupList || []).findIndex(group => group.id === user.groupId)
+                if(index !== -1) {
+                    const childIndex = (selectedItem || []).findIndex(select => select.id === groupList[index].id)
+                    if(childIndex === -1) {
+                        selectedItem.push(groupList[index])
+                    }
+                }
+            })
+            if(!(selectedItem || []).length) {
+                return message.error('Selected user not associate with groups');
+            }
+            this.setState({
+                selectedItem,
+                isLoadingMirrorGroup: false
+            }, () => this.onReview())
+        }
+    };
+
     render() {
-        const { isLoading, userList, selectedUsersKeys, current, selectedItem, selectedUsers, search, copyUserModal, selectedAdvisor, searchAdvisorUser, groupList, isSaving } = this.state;
+        const { isLoading, userList, selectedUsersKeys, current, selectedItem, selectedUsers, search, copyUserModal, selectedAdvisor, searchAdvisorUser, groupList, isSaving, selectedUser, isLoadingMirrorGroup } = this.state;
 
         const users = [];
         userList.forEach(user => {
@@ -549,7 +586,7 @@ class ByUsers extends Component {
                                                     <div className='user-header' style={{height: 35, paddingTop: 2}}>
                                                         {
                                                             (users || []).slice(0, 3).map((x, i) => {
-                                                                return <span className="mt-10 ml-10 fs-18">{x.displayName}{i === 2 ? "" : ","}</span>
+                                                                return <span className="mt-10 ml-10 fs-18">{x.displayName}{(users || []).length - 1 === i ? "" : ","}</span>
                                                             })
                                                         }
                                                         <span className="mt-20 ml-10 fs-18 ">&nbsp;{users.length > 3 ? `+${users.length - 3} more` : null}</span>
@@ -593,7 +630,7 @@ class ByUsers extends Component {
                                                             size={"large"}
                                                             color="primary"
                                                             key={'btn'}
-                                                            onClick={() => this.onReview()}
+                                                            onClick={this.onReview}
                                                             disabled={!selectedItem.length}><a><img
                                                             src={require('../../images/shopping-cart.png')}
                                                             style={{width: 20}}
@@ -629,6 +666,13 @@ class ByUsers extends Component {
                                                                     name="searchAdvisorUser"
                                                                     onChange={this.onChange}
                                                                 />
+                                                                <Button
+                                                                    className="square float-right" type="primary"
+                                                                    onClick={() => this.onMirrorReview(selectedUser)}
+                                                                    disabled={!selectedUser || isLoadingMirrorGroup}
+                                                                >
+                                                                    { isLoadingMirrorGroup ? <Spin style={{color: '#fff'}} className="mr-10"/> : null} Review
+                                                                </Button>
                                                                 <div className="mt-20" style={{overflowY: 'auto', height: 500}}>
                                                                     <Table
                                                                         className="mr-10"

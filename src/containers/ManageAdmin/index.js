@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import { Card, CardBody, Container, Row, Col, CardHeader } from "reactstrap";
+import { Card, CardBody, Row, Col, CardHeader } from "reactstrap";
 import clonedeep from "lodash.clonedeep"
-import {Button, Table, Spin, message, Icon, Steps, Select, Input, Checkbox, Tooltip, Modal, Popover, List, TreeSelect} from "antd"
-import {ApiService} from "../../services";
+import {Button, Table, Spin, message, Icon, Steps, Select, Input, Checkbox, Modal, Popover, List, TreeSelect} from "antd"
+import {ApiService} from "../../services/ApiService1";
 
 const {Step} = Steps;
 const {Option} = Select;
@@ -49,40 +49,11 @@ const treeData1 = [
 ];
 
 class ManageAdmin extends Component {
+    _apiService = new ApiService()
     constructor(props){
         super(props)
         this.state={
-            usersList: [
-                {
-                    userID: 'AMURRAY',
-                    firstName: 'Andy',
-                    lastName: 'Murray',
-                    email: 'adny@gmail.com',
-                    id: 0
-                },
-                {
-                    userID: 'DCRANE',
-                    firstName: 'Dany',
-                    lastName: 'Crane',
-                    email: 'dany@gmail.com',
-                    id: 1
-                },
-                {
-                    userID: 'JDOE',
-                    firstName: 'Jane',
-                    lastName: 'Doe',
-                    email: 'jane@gmail.com',
-                    id: 2
-                },
-                {
-                    userID: 'TUSER',
-                    firstName: 'Test',
-                    lastName: 'User',
-                    email: 'test@gmail.com',
-                    id: 3
-                }
-            ],
-            selectedUsersList: [],
+            usersList: [],
             selectedUsers: [],
             adminRoleList: [
                 {
@@ -104,26 +75,26 @@ class ManageAdmin extends Component {
             isAddNewAssignAdmin: false,
             isSearched: false,
             isAdminNewRole: false,
-            userList: [],
+            isSaving: false,
+            adminList: [],
+            selectedType: '',
+            isCheckedList: [],
             current: 0
         }
     }
 
     componentDidMount() {
-        this.getAllUsers()
+        this.getAllAdminUsers()
     }
 
-    getAllUsers = async () => {
-        const {userList} = this.state
+    getAllAdminUsers = async () => {
+
         this.setState({
             isLoading: true,
             isLoadingUsers: true
         });
-        const payload = {
-            userName: "",
-            managerRequired: ""
-        };
-        const data = await ApiService.getUsersWorkflow(payload)
+
+        const data = await this._apiService.getAllUsers("type=admin")
 
         if (!data || data.error) {
             this.setState({
@@ -131,17 +102,11 @@ class ManageAdmin extends Component {
             });
             return message.error('something is wrong! please try again');
         } else {
-            let obj = {};
             (data || []).forEach((x, i) => {
-                obj = {
-                    ...x,
-                    key: i,
-                    id: i
-                };
-                userList.push(obj)
+                x.key = i
             })
             this.setState({
-                userList,
+                adminList: data || [],
                 isLoading: false,
             })
         }
@@ -151,19 +116,23 @@ class ManageAdmin extends Component {
         return [
             {
                 title: 'User ID',
-                render: (record) => (<span>{record.userName}</span>)
+                dataIndex: 'userName'
             },
             {
                 title: 'Display Name',
-                render: (record) => (<span>{record.displayName}</span>)
+                dataIndex: 'displayName'
             },
             {
                 title: 'Email',
-                render: (record) => (<span>{record.email}</span>)
+                dataIndex: 'emails'
             },
             {
-                title: 'Department Admin Type',
-                render: (record) => (<span>{record.department}</span>)
+                title: 'Department',
+                dataIndex: 'department'
+            },
+            {
+                title: 'Admin Type',
+                render: () => <span>Super Admin</span>
             }
         ];
     }
@@ -171,7 +140,6 @@ class ManageAdmin extends Component {
     onChange = (event) => {
         let { newAdmin } = this.state
         const { name, value } = event.target
-        let object = { [name]: value }
         if(name === 'roleName'){
             newAdmin[name] = value
             this.setState({
@@ -209,10 +177,38 @@ class ManageAdmin extends Component {
     }
 
     onAddAssignNewAdmin = (isAddNewAssignAdmin) => {
+        if(isAddNewAssignAdmin) {
+            this.getUsers()
+        }
         this.setState({
             isAddNewAssignAdmin,
             current: 0
         })
+    }
+
+    getUsers = async () => {
+
+        this.setState({
+            isLoading: true,
+            isLoadingUsers: true
+        });
+
+        const data = await this._apiService.getAllUsers()
+
+        if (!data || data.error) {
+            this.setState({
+                isLoading: false
+            });
+            return message.error('something is wrong! please try again');
+        } else {
+            (data || []).forEach((x, i) => {
+                x.key = i
+            })
+            this.setState({
+                usersList: data || [],
+                isLoading: false
+            })
+        }
     }
 
     onSelectUser = (checked, key) => {
@@ -226,15 +222,18 @@ class ManageAdmin extends Component {
     }
 
     getUserList = (isSelected) => {
-        const { selectedUsers, usersList, isSearched } = this.state
+        const { selectedUsers, usersList, isSearched, search, selectedType } = this.state
         let arrayList = clonedeep(usersList)
         if(isSelected) {
             return (arrayList || []).filter(x => ((selectedUsers || []).some(y => x.id === y)))
         }
         if(!isSearched) {
             arrayList = []
-        } else {
+        } else if(search && selectedType) {
+            arrayList = (arrayList || []).filter(obj => [selectedType].some(key => obj[key] && obj[key].toLowerCase().includes(search.toLowerCase())))
             arrayList = (arrayList || []).filter(x => !((selectedUsers || []).some(y => x.id === y)))
+        } else {
+            arrayList = []
         }
         return arrayList
     }
@@ -244,11 +243,11 @@ class ManageAdmin extends Component {
         const columns = [
             {
                 title: 'User Name',
-                dataIndex: 'userID',
+                dataIndex: 'userName',
             },
             {
                 title: 'First Name',
-                dataIndex: 'firstName',
+                dataIndex: 'firstname',
             },
             {
                 title: 'Last Name',
@@ -256,7 +255,7 @@ class ManageAdmin extends Component {
             },
             {
                 title: 'Email',
-                dataIndex: 'email',
+                dataIndex: 'emails',
             },
         ];
         if(!isActive){
@@ -295,24 +294,24 @@ class ManageAdmin extends Component {
     }
 
     firstStep = () => {
-        const { isSearched, selectedUsers } = this.state
+        const { isSearched, selectedUsers, selectedType, search } = this.state
         return(
             <>
                 <Row>
                     <Col md="2" sm="12"><span>Search Criteria</span></Col>
                     <Col md="3" sm="12">
-                        <Select className="w-100-p d-inline-block">
-                            <Option value="firstName">First Name</Option>
+                        <Select className="w-100-p d-inline-block" value={selectedType} onChange={(value) => this.onChange({target: {name: 'selectedType', value}})}>
+                            <Option value="firstname">First Name</Option>
                             <Option value="lastName">Last Name</Option>
-                            <Option value="email">Email</Option>
-                            <Option value="userID">User Name</Option>
+                            <Option value="emails">Email</Option>
+                            <Option value="userName">User Name</Option>
                         </Select>
                     </Col>
                     <Col md="3" sm="12">
-                        <Input name="search" value={this.state.search} onChange={this.onChange}/>
+                        <Input name="search" value={search} onChange={this.onChange}/>
                     </Col>
                     <Col md="4" sm="12">
-                        <Button type="primary" className="square" disabled={!this.state.search} onClick={() => this.setState({isSearched: true})}>Search</Button>
+                        <Button type="primary" className="square" disabled={!search || !selectedType} onClick={() => this.setState({isSearched: true})}>Search</Button>
                     </Col>
                 </Row>
                 {
@@ -338,7 +337,7 @@ class ManageAdmin extends Component {
     }
 
     secondStep = () => {
-        const { adminRoleList } = this.state
+        const { adminRoleList, isCheckedList } = this.state
         const content = (data) => {
          return <Table
              size="small"
@@ -390,15 +389,29 @@ class ManageAdmin extends Component {
                         dataSource={adminRoleList}
                         renderItem={item => (
                             <List.Item>
-                                <Popover className="cursor-pointer" content={content(item.roles)} arrowPointAtCenter>
-                                    {item.roleName}
-                                </Popover>
+                                <Checkbox checked={(isCheckedList || []).includes(item.roleName)} onChange={() => this.onRoleSelect(item.roleName)}>
+                                    <Popover className="cursor-pointer" content={content(item.roles)} arrowPointAtCenter>
+                                        {item.roleName}
+                                    </Popover>
+                                </Checkbox>
                             </List.Item>
                         )}
                     />
                 </Col>
             </Row>
         )
+    }
+
+    onRoleSelect = (roleName) => {
+        let { isCheckedList } = this.state
+        if(isCheckedList.includes(roleName)) {
+            isCheckedList = isCheckedList.filter(x => x !== roleName)
+        } else {
+            isCheckedList.push(roleName)
+        }
+        this.setState({
+            isCheckedList
+        })
     }
 
     onCheckboxChange = (name, value) => {
@@ -410,8 +423,45 @@ class ManageAdmin extends Component {
         })
     }
 
+    onSubmit = async () => {
+        const { selectedUsers } = this.state
+        const payload = { groups: [] }
+        let object = {
+            groupId: '19bc156a5ed84a93ae83b792fc5312df',
+            users: []
+        }
+        selectedUsers.forEach(id => {
+            object.users.push({userId: id})
+        })
+        payload.groups.push(object)
+        this.setState({
+            isSaving: true
+        })
+        const data = await this._apiService.addUserToGroup(payload)
+        if (!data || data.error) {
+            this.setState({
+                isLoading: false,
+                isSaving: false
+            });
+            return message.error('something is wrong! please try again');
+        } else {
+            message.success("Role assign Successfully");
+            this.setState({
+                isSaving: false,
+                isAddNewAssignAdmin: false,
+                isSearched: false,
+                selectedType: '',
+                search: '',
+                isCheckedList: [],
+                current: 0,
+                selectedUsers: [],
+                usersList: []
+            }, () => this.getAllAdminUsers())
+        }
+    }
+
     render() {
-        const { isLoading, userList, current, isAddNewAssignAdmin, selectedUsers, isAdminNewRole, newAdmin } = this.state
+        const { isLoading, adminList, current, isAddNewAssignAdmin, selectedUsers, isAdminNewRole, newAdmin, isCheckedList, isSaving } = this.state
         const { userOperation, scopeOfGroups, scopeOfUsers, roleName } = newAdmin || {}
 
         const tProps = {
@@ -452,7 +502,7 @@ class ManageAdmin extends Component {
                                     </Col>
                                 </Row>
                             </CardHeader>
-                            <CardBody>
+                            <CardBody style={{height: 800}}>
                                 {
                                     isLoading ? <Spin className='custom-loading mt-50'/> :
                                         <>
@@ -462,7 +512,7 @@ class ManageAdmin extends Component {
                                                         <Table
                                                             columns={this.getColumns()}
                                                             size='small'
-                                                            dataSource={userList}
+                                                            dataSource={adminList}
                                                         />
                                                     </Col>
                                                 </Row> :
@@ -499,6 +549,20 @@ class ManageAdmin extends Component {
                                                                     onClick={() => this.setState({current: 1})}
                                                                 >
                                                                     Next
+                                                                </Button>
+                                                            </div> : null
+                                                    }
+                                                    {
+                                                        current === 1 ?
+                                                            <div className="text-right">
+                                                                <Button
+                                                                    className="square mt-10"
+                                                                    size={"large"}
+                                                                    color="primary"
+                                                                    disabled={!(isCheckedList || []).length || isSaving}
+                                                                    onClick={this.onSubmit}
+                                                                >
+                                                                    { isSaving ? <Spin style={{color: '#fff'}}/> : null} Submit
                                                                 </Button>
                                                             </div> : null
                                                     }

@@ -38,6 +38,7 @@ class ByGroups extends Component {
             search: '',
             selectedAdvisor: '',
             searchAdvisorGroup: '',
+            selectedMirrorGroup: '',
             groupList: [],
         };
     }
@@ -143,8 +144,8 @@ class ByGroups extends Component {
                 width: '5%',
                 render: (record, data) => {
                     return (
-                        <Radio.Group name="selectedUser"  onChange={this.onChange} value={this.state.selectedUser}>
-                            <Radio value={data.id} />
+                        <Radio.Group name="selectedMirrorGroup"  onChange={this.onChange} value={this.state.selectedMirrorGroup}>
+                            <Radio value={data.key} />
                         </Radio.Group>
                     )
                 }
@@ -409,8 +410,32 @@ class ByGroups extends Component {
         }
     }
 
+    onMirrorReview = async (keyIndex) => {
+        let { groupList, selectedItem, userList } = this.state
+        const array = groupList[keyIndex].members || []
+        if(!(array || []).length) {
+            return message.error('Selected group not associate with users');
+        }
+        array.forEach(user => {
+            const index = (userList || []).findIndex(group => group.id === user.value)
+            if(index !== -1) {
+                const childIndex = (selectedItem || []).findIndex(select => select.id === userList[index].id)
+                if(childIndex === -1) {
+                    selectedItem.push(userList[index])
+                }
+            }
+        })
+        if(!(selectedItem || []).length) {
+            return message.error('Selected user not associate with groups');
+        }
+        this.setState({
+            selectedItem,
+            isLoadingMirrorGroup: false
+        }, () => this.onReview())
+    };
+
     render() {
-        const { isLoading, search, selectedGroupsKeys, current, userList, selectedItem, selectedGroups, groupList, copyGroupModal, selectedAdvisor, searchAdvisorGroup, isSaving } = this.state;
+        const { isLoading, search, selectedGroupsKeys, current, userList, selectedItem, selectedGroups, groupList, copyGroupModal, selectedAdvisor, searchAdvisorGroup, isSaving, selectedMirrorGroup } = this.state;
 
         const groups = [];
         groupList.forEach(group => {
@@ -541,7 +566,7 @@ class ByGroups extends Component {
                                                     <div className='user-header' style={{height: 35, paddingTop: 2}}>
                                                         {
                                                             (groups || []).slice(0, 3).map((x, i) => {
-                                                                return <span className="mt-10 ml-10 fs-18" key={i.toString()}>{x.displayName}{i === 2 ? "" : ","}</span>
+                                                                return <span className="mt-10 ml-10 fs-18" key={i.toString()}>{x.displayName}{(groups || []).length - 1 === i ? "" : ","}</span>
                                                             })
                                                         }
                                                         <span className="mt-20 ml-10 fs-18 ">&nbsp;{groups.length > 3 ? `+${groups.length - 3} more` : null}</span>
@@ -637,6 +662,13 @@ class ByGroups extends Component {
                                                                     name="searchAdvisorGroup"
                                                                     onChange={this.onChange}
                                                                 />
+                                                                <Button
+                                                                    className="square float-right" type="primary"
+                                                                    onClick={() => this.onMirrorReview(selectedMirrorGroup)}
+                                                                    disabled={!selectedMirrorGroup && selectedMirrorGroup !== 0 }
+                                                                >
+                                                                    Review
+                                                                </Button>
                                                                 <div className="mt-20" style={{overflowY: 'auto', height: 500}}>
                                                                     <Table
                                                                         className="mr-10"

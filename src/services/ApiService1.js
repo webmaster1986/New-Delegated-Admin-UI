@@ -1,6 +1,5 @@
 import axios from "axios";
 import Cookies from "universal-cookie";
-const apiEndPoint = 'http://ae33357b3476.ngrok.io/idcsdemo/api';
 const axiosInstance = axios.create({
   baseURL: '',
 });
@@ -13,6 +12,8 @@ export const getTenantId = () => {
 export const getUserName = () => {
  return  cookies.get('LOGGEDIN_USERID');
 }
+
+const apiEndPoint = `http://3a285634dc44.ngrok.io/idcsdemo/api/v1/customer1/`;
 
 export class ApiService {
 
@@ -88,35 +89,40 @@ export class ApiService {
     return resData || response.data;
   }
 
-  async getAllUsers() {
-    return await ApiService.getData(`${apiEndPoint}/v1/users`);
+  async getAllUsers(query) {
+    if(query) {
+      query = `?${query}`
+    } else {
+      query = ""
+    }
+    return await ApiService.getData(`${apiEndPoint}users${query}`);
   }
 
   async createUser(payload) {
-    return await ApiService.postMethod(`${apiEndPoint}/v1/users`, payload);
+    return await ApiService.postMethod(`${apiEndPoint}users`, payload);
   }
 
   async getGroups(query) {
-    return await ApiService.getData(`${apiEndPoint}/v1/groups${query}`);
+    return await ApiService.getData(`${apiEndPoint}groups${query}`);
   }
 
   async addGroupToUser(payload) {
-    return await ApiService.postMethod(`${apiEndPoint}/v1/addGroupToUser`, payload);
+    return await ApiService.postMethod(`${apiEndPoint}addGroupToUser`, payload);
   }
 
   async addUserToGroup(payload) {
-    return await ApiService.postMethod(`${apiEndPoint}/v1/addUserToGroup`, payload);
+    return await ApiService.postMethod(`${apiEndPoint}addUserToGroup`, payload);
   }
 
   async removeGroupFromUser(payload) {
-    return await ApiService.postMethod(`${apiEndPoint}/v1/removeGroupFromUser`, payload);
+    return await ApiService.postMethod(`${apiEndPoint}removeGroupFromUser`, payload);
   }
 
   async removeUserFromGroup(payload) {
-    return await ApiService.postMethod(`${apiEndPoint}/v1/removeUserFromGroup`, payload);
+    return await ApiService.postMethod(`${apiEndPoint}removeUserFromGroup`, payload);
   }
 
   async getUserGroups(id) {
-    return await ApiService.getData(`${apiEndPoint}/v1/userGroups/${id}`);
+    return await ApiService.getData(`${apiEndPoint}userGroups/${id}`);
   }
 }
