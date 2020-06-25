@@ -6,8 +6,7 @@ import {
 import moment from "moment";
 import {Link} from "react-router-dom";
 import {ApiService} from "../../services";
-import ThumbsUp from "../../images/thumbs-up.png"
-import ThumbsDown from "../../images/thumbs-down.png"
+import GrantRevokeSection from "./GrantRevokeSection"
 
 const blue = 'rgb(215, 37, 40)'
 const gray = 'rgb(0, 157, 219)'
@@ -59,114 +58,12 @@ class PendingSection extends Component {
   }
 
   render() {
-    const {clientId} = this.props
-    const {recentRevokesList, recentGrantsList, pendingCertifications} = this.state
+    const { clientId } = this.props
+    const { pendingCertifications } = this.state
     return (
       <div>
         <Row>
-          <Col className="mb-10" xs={12} md={6} lg={4}>
-            <Card
-              title={<Link to={`/${clientId}/request/request-list`} style={{color: white}}>Recent Grants</Link>}
-              extra={<div className="total-digit">{recentGrantsList.length || 0}</div>}
-              headStyle={customPanelStyle(blue)}
-            >
-              {
-                (recentGrantsList || []).slice(0, 2).map((item,index) => (
-                  <div key={index}>
-                    <Row>
-                      <Col md={12} lg={12}>
-                        <div className="d-flex">
-                          <h4 className="mb-5">
-                            <b style={{whiteSpace: 'nowrap'}}>{item.requestedForDisplayName}</b>
-                          </h4>
-                          <div className="text-right w-100-p">
-                            <span className={"mr-10 row-action-btn-a text-initial"}>
-                              Remove
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="mt-10">
-                          <h5 className="mt-5"><b>Entity Type: </b>{item.entityType}</h5>
-                          <h5 className="mt-5"><b>Entity Name: </b>{item.entityName}</h5>
-                          <h5 className="mt-5"><b>Status: </b>{item.status}</h5>
-                          <h5 className="mt-7"><b>Request ID: </b>{item.id}</h5>
-                          <h5 className="mt-5"><b>Requested On: </b>{ item && item.requestedOn && moment(item.requestedOn).format('MM-DD-YYYY, h:mm:ss a') }</h5>
-                        </div>
-                      </Col>
-                    </Row>
-                    <Divider/>
-                  </div>
-                ))
-              }
-              {
-                (recentGrantsList || []).length > 2 ?
-                  <div className="text-right">
-                    <Link to={`/${clientId}/request/request-list`}>More</Link>
-                  </div>
-                  : null
-              }
-            </Card>
-          </Col>
-          <Col className="mb-10" xs={12} md={6} lg={4}>
-            <Card
-                title={<Link to={`/${clientId}/requests`} style={{color: white}}>Recent Revokes</Link>}
-                extra={<div className="total-digit">{recentRevokesList.length || 0}</div>}
-                headStyle={customPanelStyle(gray)}
-            >
-              {
-
-                (recentRevokesList || []).slice(0, 2).map((item,index) => {
-                  const entityName = item.entityName
-                  let icon = ThumbsUp
-                  if(entityName === "OCI_Administrators" || entityName === "Oracle Fusion Applications" || entityName === "Payroll Manager" || entityName === "Human Resource Manager") {
-                    icon = ThumbsDown
-                  }
-
-                  return(
-                    <div key={index}>
-                      <Row>
-                        <Col md={2} lg={1}>
-                          <Avatar src={icon} className="image"/>
-                        </Col>
-                        <Col md={10} lg={11}>
-                          <div className="d-flex">
-                            <h4 className="mb-5">
-                              <b style={{whiteSpace: 'nowrap'}}>{item.requestedForDisplayName}</b>
-                            </h4>
-                            <div className="text-right w-100-p">
-                          <span className={`mr-10 row-action-btn ${item.action === 'Approved' ? 'text-success' : 'text-initial'}`}>
-                           {item.action === 'Approved' ? 'Approved' : 'Approve'}
-                          </span>
-                              <span className={`mr-10 row-action-btn-a ${item.action === 'Rejected' ? 'text-success' : 'text-initial'}`}>
-                            {item.action === 'Rejected' ? 'Rejected' : 'Reject'}
-                          </span>
-                            </div>
-                          </div>
-
-                          <div className="mt-10">
-                            <h5 className="mt-5"><b>Entity Type: </b>{item.entityType}</h5>
-                            <h5 className="mt-5"><b>Entity Name: </b>{item.entityName}</h5>
-                            <h5 className="mt-7"><b>Request ID: </b>{item.id}</h5>
-                            <h5 className="mt-5"><b>Requested On: </b>{ item && item.requestedOn && moment(item.requestedOn).format('MM-DD-YYYY, h:mm:ss a') }</h5>
-
-                          </div>
-                        </Col>
-                      </Row>
-                      <Divider/>
-                    </div>
-                  )
-                })
-              }
-              {
-                (recentRevokesList || []).length > 2 ?
-                  <div className="text-right">
-                    <Link to={`/${clientId}/requests`}>More</Link>
-                  </div>
-                  : null
-              }
-            </Card>
-          </Col>
+          <GrantRevokeSection clientId={clientId}/>
           <Col className="mb-10" xs={12} md={6} lg={4}>
             <Card
               title={<Link to={`/${clientId}/certification`} style={{color: white}}>My Certifications</Link>}

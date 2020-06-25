@@ -99,6 +99,7 @@ class DirectReports extends Component {
                 <Table
                   columns={this.getColumns()}
                   size="small"
+                  rowKey="id"
                   pagination={{ pageSize: 4 }}
                   dataSource={identityUsersList}
                 />

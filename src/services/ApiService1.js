@@ -125,4 +125,12 @@ export class ApiService {
   async getUserGroups(id) {
     return await ApiService.getData(`${apiEndPoint}userGroups/${id}`);
   }
+
+  async getRecentGrants() {
+    return await ApiService.getData(`${apiEndPoint}grantreport`);
+  }
+
+  async getRecentRevokes() {
+    return await ApiService.getData(`${apiEndPoint}revokereport`);
+  }
 }
