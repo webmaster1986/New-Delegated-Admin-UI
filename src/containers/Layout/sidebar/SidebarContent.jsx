@@ -1,18 +1,32 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {withRouter} from "react-router-dom";
-
+import axios from "axios"
 import SidebarLink from './SidebarLink';
 import SidebarCategory from './SidebarCategory';
+import {message} from "antd";
 
 class SidebarContent extends Component {
     constructor(props) {
         super(props);
         this.state = {
             collapse: false,
-            clientId: props.match.params.clientId
+            clientId: props.match.params.clientId,
+            access: {}
         };
     }
+
+    async componentDidMount() {
+        const data = await axios.get(`${process.env.PUBLIC_URL}/config.json` )
+        if (!data || data.error) {
+            return message.error('something is wrong! please try again');
+        } else {
+            this.setState({
+                access: data.data || {}
+            })
+        }
+    }
+
   static propTypes = {
     onClick: PropTypes.func.isRequired,
   };
@@ -23,24 +37,53 @@ class SidebarContent extends Component {
   };
 
   render() {
-    const {isClient} = this.props;
-    const {clientId} = this.state;
+    const { isClient } = this.props;
+    const { clientId, access } = this.state;
+    const { ManageUsers, ManageAdmin, GrantAccess, RevokeAccess, TrackRequest, ApproveAccess, Certifications, Reporting } = access || {}
     return (
       <div className="sidebar__content">
         {
           isClient ?
             <ul className="sidebar__block">
               <SidebarLink title="Dashboard" icon="diamond" route={`/${clientId}/dashboard`} onClick={this.hideSidebar}/>
-                <SidebarLink title="Manage Users" icon="diamond" route={`/${clientId}/my-profile`} onClick={this.hideSidebar}/>
-                <SidebarLink title="Manage Admin" icon="diamond" route={`/${clientId}/manage-admin`} onClick={this.hideSidebar}/>
-                <SidebarCategory title="Grant Access" icon="diamond">
-                    <SidebarLink title="By Users" route={`/${clientId}/grant-access-by-users`} onClick={this.hideSidebar} />
-                    <SidebarLink title="By Groups" route={`/${clientId}/grant-access-by-groups`} onClick={this.hideSidebar} />
-                </SidebarCategory>
-                <SidebarCategory title="Revoke Access" icon="diamond">
-                    <SidebarLink title="By Users" route={`/${clientId}/revoke-access-by-users`} onClick={this.hideSidebar} />
-                    <SidebarLink title="By Groups" route={`/${clientId}/revoke-access-by-groups`} onClick={this.hideSidebar} />
-                </SidebarCategory>
+                {
+                    ManageUsers === false ? null :
+                        <SidebarLink title="Manage Users" icon="diamond" route={`/${clientId}/my-profile`} onClick={this.hideSidebar}/>
+                }
+                {
+                    ManageAdmin === false ? null :
+                        <SidebarLink title="Manage Admin" icon="diamond" route={`/${clientId}/manage-admin`} onClick={this.hideSidebar}/>
+                }
+                {
+                    GrantAccess === false ? null :
+                        <SidebarCategory title="Grant Access" icon="diamond">
+                            <SidebarLink title="By Users" route={`/${clientId}/grant-access-by-users`} onClick={this.hideSidebar} />
+                            <SidebarLink title="By Groups" route={`/${clientId}/grant-access-by-groups`} onClick={this.hideSidebar} />
+                        </SidebarCategory>
+                }
+                {
+                    RevokeAccess === false ? null :
+                        <SidebarCategory title="Revoke Access" icon="diamond">
+                            <SidebarLink title="By Users" route={`/${clientId}/revoke-access-by-users`} onClick={this.hideSidebar} />
+                            <SidebarLink title="By Groups" route={`/${clientId}/revoke-access-by-groups`} onClick={this.hideSidebar} />
+                        </SidebarCategory>
+                }
+                {
+                    TrackRequest === false ? null :
+                        <SidebarLink title="Track Request" icon="diamond" route={`/${clientId}/request/request-list`} onClick={this.hideSidebar}/>
+                }
+                {
+                    ApproveAccess === false ? null :
+                        <SidebarLink title="Approve Access" icon="diamond" route={`/${clientId}/requests`} onClick={this.hideSidebar}/>
+                }
+                {
+                    Certifications === false ? null :
+                        <SidebarLink title="Certifications" icon="diamond" route={`/${clientId}/certification`} onClick={this.hideSidebar}/>
+                }
+                {
+                    Reporting === false ? null :
+                        <SidebarLink title="Reporting" icon="diamond" route={`/${clientId}/reporting`} onClick={this.hideSidebar}/>
+                }
               {/*<SidebarLink title="My Profile" icon="diamond" route={`/${clientId}/my-profile`} onClick={this.hideSidebar}/>*/}
               {/*<SidebarCategory title="Request Access" icon="diamond">
                 <a href={`/iga/${clientId}/request/request-for-self`}>
@@ -50,10 +93,6 @@ class SidebarContent extends Component {
                   <li className="sidebar__link"><p className="sidebar__link-title">Others</p></li>
                 </a>
               </SidebarCategory>*/}
-              <SidebarLink title="Track Request" icon="diamond" route={`/${clientId}/request/request-list`} onClick={this.hideSidebar}/>
-              <SidebarLink title="Approve Access" icon="diamond" route={`/${clientId}/requests`} onClick={this.hideSidebar}/>
-              <SidebarLink title="Certifications" icon="diamond" route={`/${clientId}/certification`} onClick={this.hideSidebar}/>
-              <SidebarLink title="Reporting" icon="diamond" route={`/${clientId}/reporting`} onClick={this.hideSidebar}/>
               {/*<SidebarLink title="Manage Users" icon="diamond" route={`/${clientId}/manage-users`} onClick={this.hideSidebar}/>*/}
             </ul>
             :

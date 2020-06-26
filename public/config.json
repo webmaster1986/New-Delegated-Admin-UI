@@ -1,6 +1,10 @@
 {
-  "AuthMethod": "LDAP",
-  "STATUS": "SUCCESS",
-  "AuthType": "LOCAL",
-  "OAuthRequestURL": ""
+  "ManageUsers": true,
+  "ManageAdmin": true,
+  "GrantAccess": true,
+  "RevokeAccess": true,
+  "TrackRequest": true,
+  "ApproveAccess": true,
+  "Certifications": true,
+  "Reporting": true
 }

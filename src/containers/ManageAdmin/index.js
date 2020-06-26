@@ -79,11 +79,13 @@ class ManageAdmin extends Component {
             adminList: [],
             selectedType: '',
             isCheckedList: [],
+            loginUser: {},
             current: 0
         }
     }
 
     componentDidMount() {
+        this.getLoginUserId()
         this.getAllAdminUsers()
     }
 
@@ -107,6 +109,21 @@ class ManageAdmin extends Component {
             })
             this.setState({
                 adminList: data || [],
+                isLoading: false,
+            })
+        }
+    }
+
+    getLoginUserId = async () => {
+        const data = await this._apiService.getTenantGroupIds()
+        if (!data || data.error) {
+            this.setState({
+                isLoading: false
+            });
+            return message.error('something is wrong! please try again');
+        } else {
+            this.setState({
+                loginUser: data || [],
                 isLoading: false,
             })
         }
@@ -424,10 +441,10 @@ class ManageAdmin extends Component {
     }
 
     onSubmit = async () => {
-        const { selectedUsers } = this.state
+        const { selectedUsers, loginUser } = this.state
         const payload = { groups: [] }
         let object = {
-            groupId: '19bc156a5ed84a93ae83b792fc5312df',
+            groupId: loginUser.adminID || '',
             users: []
         }
         selectedUsers.forEach(id => {
