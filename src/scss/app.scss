@@ -230,3 +230,19 @@ body {
 .ant-divider {
   background: #afadad !important;
 }
+
+.ant-list-bordered {
+  border: 1px solid #a7a7a7;
+}
+
+.ant-list-bordered .ant-list-item {
+  border-bottom: 1px solid #a7a7a7;
+}
+
+.ant-list-split .ant-list-header {
+  border-bottom: 1px solid #a7a7a7;
+}
+
+.ant-list-something-after-last-item .ant-spin-container > .ant-list-items > .ant-list-item:last-child {
+  border-bottom: 1px solid #a7a7a7;
+}

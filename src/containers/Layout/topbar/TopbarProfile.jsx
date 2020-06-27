@@ -62,6 +62,7 @@ class TopbarProfile extends PureComponent {
               <a className="topbar__link"><span className="topbar__link-icon lnr lnr-exit"></span><p
                 className="topbar__link-title">Log Out</p></a>
             </span>
+            <TopbarMenuLink title="Profile" icon="user" path={`/${clientId}/my-profile?tab=1`}/>
             <TopbarMenuLink title="Admin" icon="user" path={`/${clientId}/admin/applist`}/>
             {/*<TopbarMenuLink title="Certification" icon="user" path={`/${clientId}/certification`} />*/}
             {/*<TopbarMenuLink title="Requests" icon="user" path={`/${clientId}/requests`} />*/}

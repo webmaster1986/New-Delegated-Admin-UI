@@ -80,7 +80,7 @@ class GrantRevokeSection extends Component {
                 <Col className="mb-10" xs={12} md={6} lg={4}>
                     <Card
                         title={<Link to={`/${clientId}/grant-access-by-users`} style={{color: white}}>Recent Grants</Link>}
-                        extra={<div className="total-digit">{recentGrantsList.length || 0}</div>}
+                        // extra={<div className="total-digit">{recentGrantsList.length || 0}</div>}
                         headStyle={customPanelStyle(blue)}
                     >
                         <>
@@ -88,7 +88,7 @@ class GrantRevokeSection extends Component {
                                 isGrantLoading ? <div className="text-center"> <Spin /> </div> :
                                     <>
                                         {
-                                            (recentGrantsList || []).slice(0, 2).map((item,index) => (
+                                            (recentGrantsList || []).slice(0, 4).map((item,index) => (
                                                 <div key={index}>
                                                     <Row>
                                                         <Col md={12} lg={12}>
@@ -109,13 +109,13 @@ class GrantRevokeSection extends Component {
                                                 </div>
                                             ))
                                         }
-                                        {
+                                        {/*{
                                             (recentGrantsList || []).length > 2 ?
                                                 <div className="text-right">
                                                     <Link to={`/${clientId}/grant-access-by-users`}>More</Link>
                                                 </div>
                                                 : null
-                                        }
+                                        }*/}
                                     </>
                             }
                         </>
@@ -124,7 +124,7 @@ class GrantRevokeSection extends Component {
                 <Col className="mb-10" xs={12} md={6} lg={4}>
                     <Card
                         title={<Link to={`/${clientId}/revoke-access-by-users`} style={{color: white}}>Recent Revokes</Link>}
-                        extra={<div className="total-digit">{recentRevokesList.length || 0}</div>}
+                        // extra={<div className="total-digit">{recentRevokesList.length || 0}</div>}
                         headStyle={customPanelStyle(gray)}
                     >
                         <>
@@ -132,7 +132,7 @@ class GrantRevokeSection extends Component {
                                 isRevokeLoading ? <div className="text-center"> <Spin /> </div> :
                                     <>
                                         {
-                                            (recentRevokesList || []).slice(0, 2).map((item,index) => (
+                                            (recentRevokesList || []).slice(0, 4).map((item,index) => (
                                                 <div key={index}>
                                                     <Row>
                                                         <Col md={12} lg={12}>
@@ -153,13 +153,13 @@ class GrantRevokeSection extends Component {
                                                 </div>
                                             ))
                                         }
-                                        {
+                                        {/*{
                                             (recentRevokesList || []).length > 2 ?
                                                 <div className="text-right">
                                                     <Link to={`/${clientId}/revoke-access-by-users`}>More</Link>
                                                 </div>
                                                 : null
-                                        }
+                                        }*/}
                                     </>
                             }
                         </>

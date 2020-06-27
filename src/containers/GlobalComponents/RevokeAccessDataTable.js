@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
-import {Button, Checkbox, Dropdown, Icon, Input, Menu, Select, Spin, Table, Tooltip} from "antd";
-import {get} from 'lodash';
-import {Card, CardBody, Col, Row} from "reactstrap";
+import { Button, Checkbox, Icon, Input, Spin, Table } from "antd";
+import { get } from 'lodash';
+import { Card, CardBody, Col, Row } from "reactstrap";
 import CardHeader from "reactstrap/es/CardHeader";
 
 const {Search} = Input;
-const {Option} = Select;
 
 class RevokeAccessDataTable extends Component {
   constructor(props) {
@@ -16,7 +15,7 @@ class RevokeAccessDataTable extends Component {
   }
 
   tab = () => {
-    const { isLoadingUser, selected, onCheckBoxChange, undoDecision, onUpdateStatus, onToggleComment, getFilterData, dataType, isLoading } = this.props;
+    const { isLoadingUser, selected, onCheckBoxChange, onUpdateStatus, getFilterData, dataType, isLoading } = this.props;
     const columns = [];
     if(dataType === "user") {
       columns.push(
@@ -67,7 +66,7 @@ class RevokeAccessDataTable extends Component {
                   className={`mr-10 ws-nowrap row-action-btn-a ${action === 'rejected' ? 'text-success' : 'text-initial'}`}
                   onClick={() => onUpdateStatus(record.key, action === 'rejected' ? 'required' : 'rejected')}
                 >
-                  {action === 'rejected' ? 'Revoked' : 'Revoke'}
+                  {action === 'rejected' ? 'Revoke' : 'Revoke'}
                 </span>
               </div>
             )
@@ -145,22 +144,12 @@ class RevokeAccessDataTable extends Component {
                   className={`mr-10 ws-nowrap row-action-btn-a ${action === 'rejected' ? 'text-success' : 'text-initial'}`}
                   onClick={() => onUpdateStatus(record.key, action === 'rejected' ? 'required' : 'rejected')}
                 >
-                  {action === 'rejected' ? 'Revoked' : 'Revoke'}
+                  {action === 'rejected' ? 'Revoke' : 'Revoke'}
                 </span>
               </div>
             )
           }
-        },
-        // {
-        //   title: (<div><img src={require('../../images/comment.png')}/></div>),
-        //   width: 50,
-        //   align: 'right',
-        //   render: (record) => {
-        //     return <span className='cursor-pointer'
-        //                  onClick={() => onToggleComment(record.mainId, record.entInfo.newComment)}><a><img
-        //         src={require('../../images/edit.png')} className="size-img"/></a></span>
-        //   }
-        // },
+        }
       )
     }
     return (
@@ -190,7 +179,7 @@ class RevokeAccessDataTable extends Component {
   }
 
   render() {
-    const { onSelectAll, groupList, confirmRevokeSelected, onChange, selected, searchKey, changedCount, submitData, userList, activeKey, dataType, isSaving, isLoading } = this.props;
+    const { onSelectAll, groupList, confirmRevokeSelected, onChange, selected, searchKey, changedCount, submitData, userList, activeKey, dataType, isSaving } = this.props;
     const type = dataType === "group" ? "Users" : "Groups"
     return (
       <div className="custom-content">
@@ -227,7 +216,6 @@ class RevokeAccessDataTable extends Component {
                     <Search
                       size="large"
                       placeholder={`Search for ${type}`}
-                      // style={{width: 220}}
                       className="float-right w-100-p"
                       value={searchKey}
                       name="searchKey"
@@ -244,7 +232,6 @@ class RevokeAccessDataTable extends Component {
             <Row>
               {
                 userList.map(item => {
-                  const name = this.props.dataType === "group" ? "name" : "userName"
                   if (item.id === activeKey) {
                     return this.tab(item)
                   }

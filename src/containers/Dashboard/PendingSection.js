@@ -67,11 +67,11 @@ class PendingSection extends Component {
           <Col className="mb-10" xs={12} md={6} lg={4}>
             <Card
               title={<Link to={`/${clientId}/certification`} style={{color: white}}>My Certifications</Link>}
-              extra={<div className="total-digit">{pendingCertifications.length || 0}</div>}
+              // extra={<div className="total-digit">{pendingCertifications.length || 0}</div>}
               headStyle={customPanelStyle(green)}
             >
               {
-                pendingCertifications.map((item, index)=> {
+                (pendingCertifications || []).slice(0, 4).map((item, index)=> {
                   const { certificationId, campaignId, reviewerCertificationInfo, reviewerCertificateActionInfo } = item
                   let status = ""
                   if(reviewerCertificateActionInfo) {
@@ -79,7 +79,7 @@ class PendingSection extends Component {
                       : reviewerCertificateActionInfo.percentageCompleted === 100 ? "Completed"
                         : "In Progress"
                   }
-                  if(index > 1) return;
+                  // if(index > 1) return;
                   return (
                     <div key={campaignId}>
                       <Row>
@@ -104,13 +104,13 @@ class PendingSection extends Component {
                   )
                 })
               }
-              {
+              {/*{
                 this.state.pendingCertifications.length > 2 ?
                   <div className="text-right">
                     <Link to={`/${clientId}/certification`}>More</Link>
                   </div>
                   : null
-              }
+              }*/}
             </Card>
           </Col>
         </Row>

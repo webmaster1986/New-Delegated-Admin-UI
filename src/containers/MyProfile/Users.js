@@ -32,7 +32,7 @@ class MyProfile extends Component {
             totalResource: 0,
             defaultCurrent: 1,
             id: query.id || "",
-            activeKey: query.tab || '1',
+            activeKey: query.tab || '2',
             searchUser: ''
         }
     }
@@ -318,7 +318,7 @@ class MyProfile extends Component {
                                                             isSaving ?
                                                                 <Spin className='color-white mr-10'/> : null
                                                         }
-                                                        Save
+                                                        Submit
                                                     </Button>
                                                     <Button
                                                         className="square ml-10"
@@ -370,17 +370,6 @@ class MyProfile extends Component {
                                                         />
                                                     </Col>
                                                     <Col md={2} sm={12} xs={12}>
-                                                        <span><b>User Name</b></span>
-                                                    </Col>
-                                                    <Col md={4} sm={12} xs={12}>
-                                                        <Input
-                                                            className="mt-10"
-                                                            onChange={this.onChange}
-                                                            name="userName"
-                                                            value={userName}
-                                                        />
-                                                    </Col>
-                                                    <Col md={2} sm={12} xs={12}>
                                                         <span><b>Last Name</b></span>
                                                     </Col>
                                                     <Col md={4} sm={12} xs={12}>
@@ -389,6 +378,17 @@ class MyProfile extends Component {
                                                             value={lastName}
                                                             onChange={this.onChange}
                                                             className="mt-10"
+                                                        />
+                                                    </Col>
+                                                    <Col md={2} sm={12} xs={12}>
+                                                        <span><b>User Name</b></span>
+                                                    </Col>
+                                                    <Col md={4} sm={12} xs={12}>
+                                                        <Input
+                                                            className="mt-10"
+                                                            onChange={this.onChange}
+                                                            name="userName"
+                                                            value={userName}
                                                         />
                                                     </Col>
                                                     <Col md={2} sm={12} xs={12}>

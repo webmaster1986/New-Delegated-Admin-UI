@@ -1,7 +1,21 @@
 import React, {Component} from 'react';
 import { Card, CardBody, Row, Col, CardHeader } from "reactstrap";
 import clonedeep from "lodash.clonedeep"
-import {Button, Table, Spin, message, Icon, Steps, Select, Input, Checkbox, Modal, Popover, List, TreeSelect} from "antd"
+import {
+    Button,
+    Table,
+    Spin,
+    message,
+    Icon,
+    Steps,
+    Select,
+    Input,
+    Checkbox,
+    Modal,
+    Popover,
+    List,
+    TreeSelect
+} from "antd"
 import {ApiService} from "../../services/ApiService1";
 
 const {Step} = Steps;
@@ -34,8 +48,8 @@ const treeData = [
         key: '4'
     },
     {
-        title: 'Remove Users to Groups',
-        value: 'Remove Users to Groups',
+        title: 'Remove Users From Groups',
+        value: 'Remove Users From Groups',
         key: '5'
     },
 ];
@@ -76,10 +90,12 @@ class ManageAdmin extends Component {
             isSearched: false,
             isAdminNewRole: false,
             isSaving: false,
+            showProfile: false,
             adminList: [],
             selectedType: '',
             isCheckedList: [],
             loginUser: {},
+            profile: {},
             current: 0
         }
     }
@@ -133,7 +149,7 @@ class ManageAdmin extends Component {
         return [
             {
                 title: 'User ID',
-                dataIndex: 'userName'
+                render: (record) => (<span className="cursor-pointer" style={{color: '#005293'}} onClick={() => this.setState({profile: record, showProfile: true})}>{record.userName}</span>)
             },
             {
                 title: 'Display Name',
@@ -148,10 +164,36 @@ class ManageAdmin extends Component {
                 dataIndex: 'department'
             },
             {
-                title: 'Admin Type',
+                title: 'Admin Role',
                 render: () => <span>Super Admin</span>
+            },
+            {
+                title: '',
+                render: (record) => <span><Button type="danger" onClick={() => this.onRevoke(record.id)}>Revoke</Button> </span>
             }
         ];
+    }
+
+    onRevoke = (userId) => {
+        const that = this
+        Modal.confirm({
+            title: "Are you sure you wan't revoke the user?",
+            okText: 'Submit',
+            cancelText: 'Cancel',
+            async onOk() {
+                const { loginUser } = that.state
+                let payload = { groups: [] }
+                let object = { users: [{userId}], groupId: loginUser.adminID }
+                payload.groups.push(object)
+                const data = await that._apiService.removeUserFromGroup(payload)
+                if (!data || data.error) {
+                    message.error('something is wrong! please try again');
+                } else {
+                    message.success(data || "Successfully revoke");
+                    that.getAllAdminUsers()
+                }
+            }
+        });
     }
 
     onChange = (event) => {
@@ -246,9 +288,13 @@ class ManageAdmin extends Component {
         }
         if(!isSearched) {
             arrayList = []
-        } else if(search && selectedType) {
-            arrayList = (arrayList || []).filter(obj => [selectedType].some(key => obj[key] && obj[key].toLowerCase().includes(search.toLowerCase())))
-            arrayList = (arrayList || []).filter(x => !((selectedUsers || []).some(y => x.id === y)))
+        } else if(selectedType) {
+            if(search) {
+                arrayList = (arrayList || []).filter(obj => [selectedType].some(key => obj[key] && obj[key].toLowerCase().includes(search.toLowerCase())))
+                arrayList = (arrayList || []).filter(x => !((selectedUsers || []).some(y => x.id === y)))
+            } else {
+                arrayList = arrayList
+            }
         } else {
             arrayList = []
         }
@@ -328,7 +374,7 @@ class ManageAdmin extends Component {
                         <Input name="search" value={search} onChange={this.onChange}/>
                     </Col>
                     <Col md="4" sm="12">
-                        <Button type="primary" className="square" disabled={!search || !selectedType} onClick={() => this.setState({isSearched: true})}>Search</Button>
+                        <Button type="primary" className="square" disabled={!selectedType} onClick={() => this.setState({isSearched: true})}>Search</Button>
                     </Col>
                 </Row>
                 {
@@ -407,8 +453,9 @@ class ManageAdmin extends Component {
                         renderItem={item => (
                             <List.Item>
                                 <Checkbox checked={(isCheckedList || []).includes(item.roleName)} onChange={() => this.onRoleSelect(item.roleName)}>
+                                    {item.roleName}
                                     <Popover className="cursor-pointer" content={content(item.roles)} arrowPointAtCenter>
-                                        {item.roleName}
+                                        <Icon className="ml-10" type="info-circle" style={{color: '#1890ff'}}/>
                                     </Popover>
                                 </Checkbox>
                             </List.Item>
@@ -477,8 +524,123 @@ class ManageAdmin extends Component {
         }
     }
 
+    onProfileView = () => {
+        const { firstname, manager, middleName, organization, lastName, emails, displayName, userType, userName, active } = this.state.profile || {}
+        return(
+            <Row className="align-items-center">
+                <Col md={2} sm={12} xs={12}>
+                    <span><b>First Name</b></span>
+                </Col>
+                <Col md={4} sm={12} xs={12}>
+                    <Input
+                        name="firstname"
+                        onChange={this.onChange}
+                        value={firstname}
+                    />
+                </Col>
+                <Col md={2} sm={12} xs={12}>
+                    <span><b>Middle Name</b></span>
+                </Col>
+                <Col md={4} sm={12} xs={12}>
+                    <Input
+                        className="mt-10"
+                        onChange={this.onChange}
+                        name="middleName"
+                        value={middleName}
+                    />
+                </Col>
+                <Col md={2} sm={12} xs={12}>
+                    <span><b>Last Name</b></span>
+                </Col>
+                <Col md={4} sm={12} xs={12}>
+                    <Input
+                        name="lastName"
+                        value={lastName}
+                        onChange={this.onChange}
+                        className="mt-10"
+                    />
+                </Col>
+                <Col md={2} sm={12} xs={12}>
+                    <span><b>User Name</b></span>
+                </Col>
+                <Col md={4} sm={12} xs={12}>
+                    <Input
+                        className="mt-10"
+                        onChange={this.onChange}
+                        name="userName"
+                        value={userName}
+                    />
+                </Col>
+                <Col md={2} sm={12} xs={12}>
+                    <span><b>Organization</b></span>
+                </Col>
+                <Col md={4} sm={12} xs={12}>
+                    <Input
+                        value={organization}
+                        onChange={this.onChange}
+                        name="organization"
+                        className="mt-10"
+                    />
+                </Col>
+                <Col md={2} sm={12} xs={12}>
+                    <span><b>E-mail</b></span>
+                </Col>
+                <Col md={4} sm={12} xs={12}>
+                    <Input
+                        name="emails"
+                        value={emails}
+                        onChange={this.onChange}
+                        className="mt-10"
+                    />
+                </Col>
+                <Col md={2} sm={12} xs={12}>
+                    <span><b>Display Name</b></span>
+                </Col>
+                <Col md={4} sm={12} xs={12}>
+                    <Input
+                        className="mt-10"
+                        value={displayName}
+                        name="displayName"
+                        onChange={this.onChange}
+                    />
+                </Col>
+                <Col md={2} sm={12} xs={12}>
+                    <span><b>User Type</b></span>
+                </Col>
+                <Col md={4} sm={12} xs={12}>
+                    <Select
+                        className="w-100-p mt-10"
+                        name="userType"
+                        value={userType}
+                        onChange={(value) => this.onChange({
+                            target: {
+                                name: 'userType',
+                                value
+                            }
+                        })}
+                    >
+                        <Select.Option value="employee">Employee</Select.Option>
+                        <Select.Option value="contractor">Contractor</Select.Option>
+                        <Select.Option value="intern">Intern</Select.Option>
+                        <Select.Option value="temporary">Temporary</Select.Option>
+                        <Select.Option value="service">Service</Select.Option>
+                        <Select.Option value="external">External</Select.Option>
+                        <Select.Option value="generic">Generic</Select.Option>
+                    </Select>
+                </Col>
+                <Col md={2} sm={12} xs={12}>
+                    <span><b>Identity Status</b></span>
+                </Col>
+                <Col md={4} sm={12} xs={12}>
+                    <Button type={active ? "primary" : ''} size="small" className="mt-10 mr-10" >Active</Button>
+                    <Button type={!active ? "primary" : ''} size="small" className="mt-10" >Inactive</Button>
+                </Col>
+            </Row>
+        )
+    }
+
     render() {
-        const { isLoading, adminList, current, isAddNewAssignAdmin, selectedUsers, isAdminNewRole, newAdmin, isCheckedList, isSaving } = this.state
+        const { isLoading, adminList, current, isAddNewAssignAdmin, selectedUsers, isAdminNewRole, newAdmin, isCheckedList, isSaving, showProfile } = this.state
         const { userOperation, scopeOfGroups, scopeOfUsers, roleName } = newAdmin || {}
 
         const tProps = {
@@ -505,15 +667,22 @@ class ManageAdmin extends Component {
                                     </Col>
                                     <Col md={2} sm={12} xs={12} className="text-right">
                                         {
-                                            !isAddNewAssignAdmin ?
+                                            (!isAddNewAssignAdmin || showProfile) ?
                                                 <Button
                                                     type="primary"
                                                     className="square"
                                                     size="small"
-                                                    onClick={() => this.onAddAssignNewAdmin(true)}
+                                                    onClick={showProfile ? () => this.setState({profile: {}, showProfile: false}) : () => this.onAddAssignNewAdmin(true)}
                                                 >
-                                                    <a><img src={require("../../images/plus-symbol.png")} style={{width: 18}}/></a>
-                                                    &nbsp;Assign New Admin
+
+                                                    {
+                                                        showProfile ?
+                                                            <a><img src={require("../../images/multiply.png")} style={{width: 20}} /></a> :
+                                                            <span>
+                                                                <a><img src={require("../../images/plus-symbol.png")} style={{width: 18}}/></a>
+                                                                &nbsp;Assign New Admin
+                                                            </span>
+                                                    }
                                                 </Button> : null
                                         }
                                     </Col>
@@ -524,16 +693,20 @@ class ManageAdmin extends Component {
                                     isLoading ? <Spin className='custom-loading mt-50'/> :
                                         <>
                                             {!isAddNewAssignAdmin ?
-                                                <Row>
-                                                    <Col md={12} sm={12} xs={12} className='mt-10'>
-                                                        <Table
-                                                            columns={this.getColumns()}
-                                                            size='small'
-                                                            dataSource={adminList}
-                                                        />
-                                                    </Col>
-                                                </Row> :
-
+                                                <>
+                                                    {
+                                                        showProfile ? this.onProfileView() :
+                                                            <Row>
+                                                                <Col md={12} sm={12} xs={12} className='mt-10'>
+                                                                    <Table
+                                                                        columns={this.getColumns()}
+                                                                        size='small'
+                                                                        dataSource={adminList}
+                                                                    />
+                                                                </Col>
+                                                            </Row>
+                                                    }
+                                                </> :
                                                 <>
                                                     <Row>
                                                         <Col md="3" sm="12">

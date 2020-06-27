@@ -118,7 +118,7 @@ class CopyGroupsModal extends React.Component {
       <Modal
         title="Copy Groups"
         visible={true}
-        width={"50%"}
+        width={800}
         onOk={this.onSave}
         onCancel={onClose}
         footer={
