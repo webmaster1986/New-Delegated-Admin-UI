@@ -16,18 +16,11 @@ class ModifyUser extends Component {
         isModifyUser: false,
         activeKey: '',
         Application: [],
-        Department: '',
-        Email: '',
-        FirstName: '',
-        LastName: '',
-        Manager: '',
         PhoneNumber: '',
         TenantID: '',
-        Title: '',
-        UserName: '',
         Role: [],
         entitlements: [],
-        sodViolation: this.props.selectedRecord.UserName === "AJACKSON" ? [] : [
+        sodViolation: (this.props.selectedRecord || {}).UserName === "AJACKSON" ? [] : [
           {
             name: "HCM SoD Policy Violation",
             description: "User should not be granted Payroll Role and HR Role",
@@ -129,7 +122,7 @@ class ModifyUser extends Component {
     };
 
     componentDidMount() {
-        const {selectedRecord} = this.props;
+        const { selectedRecord = {} } = this.props;
         let entitlements  = [];
         (selectedRecord.Application || []).forEach((x) =>{
             (x.Entitlement || []).forEach((y) =>{
@@ -142,16 +135,9 @@ class ModifyUser extends Component {
       this.setState({
         ...(selectedRecord || {}),
         Application: selectedRecord.Application,
-        Department: selectedRecord.Department,
-        Email: selectedRecord.Email,
-        FirstName: selectedRecord.FirstName,
-        LastName: selectedRecord.LastName,
-        Manager: selectedRecord.Manager,
         PhoneNumber: selectedRecord.PhoneNumber,
         TenantID: selectedRecord.TenantID,
         Role: selectedRecord.Role,
-        Title: selectedRecord.Title,
-        UserName: selectedRecord.UserName,
         entitlements
       })
     }
@@ -175,8 +161,8 @@ class ModifyUser extends Component {
   }
   
   Attributes = () => {
-    const {FirstName, Manager, LastName, Email, Title, UserType, MiddleName, LicenseID, LicenseName, LicenseExpiry, TrainingExpiry, TrainingCompletion, TrainingType} = this.state;
-    const displayName = ` ${FirstName || ""}${' '}${LastName || ""}`
+    const { LicenseID, LicenseName, LicenseExpiry, TrainingExpiry, TrainingCompletion, TrainingType } = this.state;
+    const { firstname, manager, middleName, organization, lastName, emails, displayName, userType, userName, active, id } = this.state;
     return(
       <div>
           <Row className="align-items-center">
@@ -184,56 +170,109 @@ class ModifyUser extends Component {
                   <span><b>First Name</b></span>
               </Col>
               <Col md={4} sm={12} xs={12}>
-                  <Input name="FirstName" onChange={this.onChange} value={FirstName}/>
-              </Col>
-              <Col md={2} sm={12} xs={12}>
-                  <span><b>Manager</b></span>
-              </Col>
-              <Col md={4} sm={12} xs={12}>
-                  <Input name="Manager" onChange={this.onChange} value={Manager}/>
+                  <Input
+                      name="firstname"
+                      onChange={this.onChange}
+                      value={firstname}
+                  />
               </Col>
               <Col md={2} sm={12} xs={12}>
                   <span><b>Middle Name</b></span>
               </Col>
               <Col md={4} sm={12} xs={12}>
-                  <Input className="mt-10" onChange={this.onChange} name="MiddleName" value={MiddleName}/>
-              </Col>
-              <Col md={2} sm={12} xs={12}>
-                  <span><b>Organization</b></span>
-              </Col>
-              <Col md={4} sm={12} xs={12}>
-                  <Input value={Title} onChange={this.onChange} name="Title" className="mt-10"/>
+                  <Input
+                      className="mt-10"
+                      onChange={this.onChange}
+                      name="middleName"
+                      value={middleName}
+                  />
               </Col>
               <Col md={2} sm={12} xs={12}>
                   <span><b>Last Name</b></span>
               </Col>
               <Col md={4} sm={12} xs={12}>
-                  <Input name="LastName" value={LastName} onChange={this.onChange} className="mt-10"/>
+                  <Input
+                      name="lastName"
+                      value={lastName}
+                      onChange={this.onChange}
+                      className="mt-10"
+                  />
+              </Col>
+              <Col md={2} sm={12} xs={12}>
+                  <span><b>User Name</b></span>
+              </Col>
+              <Col md={4} sm={12} xs={12}>
+                  <Input
+                      className="mt-10"
+                      onChange={this.onChange}
+                      name="userName"
+                      value={userName}
+                      disabled={id}
+                  />
+              </Col>
+              <Col md={2} sm={12} xs={12}>
+                  <span><b>Organization</b></span>
+              </Col>
+              <Col md={4} sm={12} xs={12}>
+                  <Input
+                      value={organization}
+                      onChange={this.onChange}
+                      name="organization"
+                      className="mt-10"
+                  />
               </Col>
               <Col md={2} sm={12} xs={12}>
                   <span><b>E-mail</b></span>
               </Col>
               <Col md={4} sm={12} xs={12}>
-                  <Input name="Email" value={Email} onChange={this.onChange} className="mt-10"/>
+                  <Input
+                      name="emails"
+                      value={emails}
+                      onChange={this.onChange}
+                      className="mt-10"
+                  />
               </Col>
               <Col md={2} sm={12} xs={12}>
                   <span><b>Display Name</b></span>
               </Col>
               <Col md={4} sm={12} xs={12}>
-                  <Input className="mt-10" value={displayName} name="displayName" onChange={this.onChange}/>
+                  <Input
+                      className="mt-10"
+                      value={displayName}
+                      name="displayName"
+                      onChange={this.onChange}
+                  />
               </Col>
               <Col md={2} sm={12} xs={12}>
                   <span><b>User Type</b></span>
               </Col>
               <Col md={4} sm={12} xs={12}>
-                  <Input name="UserType" value={UserType} onChange={this.onChange} className="mt-10"/>
+                  <Select
+                      className="w-100-p mt-10"
+                      name="userType"
+                      value={userType}
+                      onChange={(value) => this.onChange({
+                          target: {
+                              name: 'userType',
+                              value
+                          }
+                      })}
+                  >
+                      <Select.Option value="employee">Employee</Select.Option>
+                      <Select.Option value="contractor">Contractor</Select.Option>
+                      <Select.Option value="intern">Intern</Select.Option>
+                      <Select.Option value="temporary">Temporary</Select.Option>
+                      <Select.Option value="service">Service</Select.Option>
+                      <Select.Option value="external">External</Select.Option>
+                      <Select.Option value="generic">Generic</Select.Option>
+                  </Select>
               </Col>
-              <Col md={6} />
               <Col md={2} sm={12} xs={12}>
                   <span><b>Identity Status</b></span>
               </Col>
               <Col md={4} sm={12} xs={12}>
-                  <Button type="primary" size="small" className="mt-10">Active</Button>
+                  <Button type={active ? "primary" : ''} size="small" className="mt-10 mr-10" onClick={() => this.onChange({target: {name: 'active', value: true}})}>Active</Button>
+                  <Button type={!active ? "primary" : ''} size="small" className="mt-10" onClick={() => this.onChange({target: {name: 'active', value: false}})}>Inactive</Button>
               </Col>
           </Row>
           <hr/>

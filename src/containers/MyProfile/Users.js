@@ -78,9 +78,10 @@ class MyProfile extends Component {
             return message.error('something is wrong! please try again');
         } else {
             const { id } = this.state
+            const userId = id || getUserName()
             let selectedRecord = {}
-            if(data && data.length && id){
-                selectedRecord = (data || []).find(item => item.userId === id)
+            if(data && data.length && userId){
+                selectedRecord = (data || []).find(item => item.userName === userId)
             }
             data.forEach((x, i) => {
                 x.key = i
@@ -89,13 +90,7 @@ class MyProfile extends Component {
                 identityUsersList: data || [],
                 selectedRecord,
                 isLoading: false,
-            }/*, async () => {
-                const filteredUserData = await this.getFilteredUsers(true)
-                this.setState({
-                    isLoading: false,
-                    profile: filteredUserData.length ? filteredUserData[0] : {},
-                })
-            }*/)
+            })
         }
 
     }
@@ -189,7 +184,8 @@ class MyProfile extends Component {
     onAddUser = () => {
         this.setState({
             isAddUser: false,
-            isModifyUser: false
+            isModifyUser: false,
+            newUser: {}
         })
     }
 
@@ -247,7 +243,7 @@ class MyProfile extends Component {
 
     render() {
         const { isLoading, isModifyUser, selectedRecord, profile, activeKey, searchUser, isAddUser, newUser, isSaving } = this.state;
-        const { firstname, manager, middleName, organization, lastName, emails, displayName, userType, userName, active } = newUser || {}
+        const { firstname, manager, middleName, organization, lastName, emails, displayName, userType, userName, active, id = "" } = newUser || {}
         return(
           <div className="dashboard create-user">
               <Tabs defaultActiveKey={activeKey} onChange={this.onTabChange}>
@@ -256,7 +252,7 @@ class MyProfile extends Component {
                           isLoading ? <Spin className='mt-50 custom-loading'/> :
                             <ModifyUser
                               isProfile
-                              selectedRecord={profile}
+                              selectedRecord={selectedRecord || {}}
                               onCloseModifyUser={this.onCloseModifyUser}/>
                       }
                   </TabPane>
@@ -288,6 +284,19 @@ class MyProfile extends Component {
                                                             />
                                                         </a>
                                                         &nbsp;Add User
+                                                    </Button>
+                                                    <Button
+                                                        className="square mr-10"
+                                                        size={"large"}
+                                                        color="primary"
+                                                    >
+                                                        <a>
+                                                            <img
+                                                                src={require("../../images/plus-symbol.png")}
+                                                                style={{width: 20}}
+                                                            />
+                                                        </a>
+                                                        &nbsp; CSV Upload
                                                     </Button>
                                                     <Search
                                                         size="large"
@@ -348,16 +357,6 @@ class MyProfile extends Component {
                                                             value={firstname}
                                                         />
                                                     </Col>
-                                                    {/*<Col md={2} sm={12} xs={12}>
-                                                        <span><b>Manager</b></span>
-                                                    </Col>
-                                                    <Col md={4} sm={12} xs={12}>
-                                                        <Input
-                                                            name="manager"
-                                                            onChange={this.onChange}
-                                                            value={manager}
-                                                        />
-                                                    </Col>*/}
                                                     <Col md={2} sm={12} xs={12}>
                                                         <span><b>Middle Name</b></span>
                                                     </Col>
@@ -389,6 +388,7 @@ class MyProfile extends Component {
                                                             onChange={this.onChange}
                                                             name="userName"
                                                             value={userName}
+                                                            disabled={id}
                                                         />
                                                     </Col>
                                                     <Col md={2} sm={12} xs={12}>
