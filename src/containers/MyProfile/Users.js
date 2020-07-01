@@ -19,6 +19,7 @@ class MyProfile extends Component {
         const query = queryString.parse(params) || {}
         this.state = {
             isEdit: false,
+            isEnabledSaving: false,
             identityUsersList: [],
             isLoading: false,
             isAddUser: false,
@@ -217,6 +218,58 @@ class MyProfile extends Component {
         }
     }
 
+    onModifyUser = async () => {
+        const { newUser } = this.state
+        this.setState({
+            isSaving: true
+        })
+        delete newUser.key
+        const data = await this._apiService.updateUser(newUser)
+        if (!data || data.error) {
+            message.error('something is wrong! please try again');
+            this.setState({
+                isSaving: false
+            })
+        } else {
+            this.GetAllIdentityUsers()
+            message.success("User updated Successfully");
+            this.setState({
+                isSaving: false,
+                isAddUser: false,
+                isModifyUser: false,
+                newUser: {
+                    active: true
+                },
+                searchUser: ''
+            })
+        }
+    }
+
+    onEnableDisableUser = async (userId, type) => {
+        this.setState({
+            isEnabledSaving: true
+        })
+        const data = await this._apiService.enableDisableUser(userId, type)
+        if (!data || data.error) {
+            message.error('something is wrong! please try again');
+            this.setState({
+                isEnabledSaving: false
+            })
+        } else {
+            this.GetAllIdentityUsers()
+            message.success(`User ${type ? "enable" : "disable"} Successfully`);
+            this.setState({
+                isEnabledSaving: false,
+                isAddUser: false,
+                isModifyUser: false,
+                newUser: {
+                    active: true
+                },
+                searchUser: ''
+            })
+        }
+    }
+
     onChange = (event) => {
         this.setState({
             newUser: {
@@ -242,7 +295,7 @@ class MyProfile extends Component {
     }
 
     render() {
-        const { isLoading, isModifyUser, selectedRecord, profile, activeKey, searchUser, isAddUser, newUser, isSaving } = this.state;
+        const { isLoading, isModifyUser, selectedRecord, profile, activeKey, searchUser, isAddUser, newUser, isSaving, isEnabledSaving } = this.state;
         const { firstname, manager, middleName, organization, lastName, emails, displayName, userType, userName, active, id = "" } = newUser || {}
         return(
           <div className="dashboard create-user">
@@ -311,17 +364,26 @@ class MyProfile extends Component {
                                                     {
                                                         isModifyUser ?
                                                             <>
-                                                                <Button className="square ml-10" size={"large"} color="primary">Disable</Button>
-                                                                <Button className="square ml-10" size={"large"} color="primary">Lock</Button>
-                                                                <Button className="square ml-10" size={"large"} color="primary">Delete</Button>
-                                                                <Button className="square ml-10" size={"large"} color="primary">Update</Button>
+                                                                <Button className="square ml-10" size={"large"} color="primary" disabled={isEnabledSaving || isSaving} onClick={() => this.onEnableDisableUser(id, !active)}
+                                                                >
+                                                                    {
+                                                                        isEnabledSaving ? <Spin className='color-white mr-10'/> : null
+                                                                    }
+                                                                    {
+                                                                        active ? "Disable" : "Enable"
+                                                                    }
+                                                                </Button>
+                                                                {/*<Button className="square ml-10" size={"large"} color="primary">Lock</Button>*/}
+                                                                <Button className="square ml-10" size={"large"} color="primary" disabled={isEnabledSaving || isSaving}>Delete</Button>
+                                                                {/*<Button className="square ml-10" size={"large"} color="primary" onClick={() => this.onEnableDisableUser(id, true)}>Enable</Button>*/}
                                                             </> : null
                                                     }
                                                     <Button
                                                         className="square ml-10"
                                                         size={"large"}
                                                         color="primary"
-                                                        onClick={this.onSaveNewUser}
+                                                        onClick={isModifyUser ? this.onModifyUser : this.onSaveNewUser}
+                                                        disabled={isEnabledSaving || isSaving}
                                                     >
                                                         {
                                                             isSaving ?
@@ -334,6 +396,7 @@ class MyProfile extends Component {
                                                         size={"large"}
                                                         color="primary"
                                                         onClick={this.onAddUser}
+                                                        disabled={isEnabledSaving || isSaving}
                                                     >
                                                         &nbsp;<a><img src={require("../../images/multiply.png")} style={{width: 20}} /></a>
                                                     </Button>
@@ -452,8 +515,9 @@ class MyProfile extends Component {
                                                         <span><b>Identity Status</b></span>
                                                     </Col>
                                                     <Col md={4} sm={12} xs={12}>
-                                                        <Button type={active ? "primary" : ''} size="small" className="mt-10 mr-10" onClick={() => this.onIdentityStatusSet(true)}>Active</Button>
-                                                        <Button type={!active ? "primary" : ''} size="small" className="mt-10" onClick={() => this.onIdentityStatusSet(false)}>Inactive</Button>
+                                                        <Button type={"primary"} size="small" className="mt-10 mr-10">{active ? "Active" : "Inactive"}</Button>
+                                                        {/*<Button type={active ? "primary" : ''} size="small" className="mt-10 mr-10" onClick={() => this.onIdentityStatusSet(true)}>Active</Button>
+                                                        <Button type={!active ? "primary" : ''} size="small" className="mt-10" onClick={() => this.onIdentityStatusSet(false)}>Inactive</Button>*/}
                                                     </Col>
                                                 </Row> :
                                                 <Row>

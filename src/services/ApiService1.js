@@ -13,6 +13,7 @@ export const getUserName = () => {
  return  cookies.get('LOGGEDIN_USERID');
 }
 
+// const apiEndPoint = `http://25a4e8669de9.ngrok.io/idcsdemo/api/v1/customer1/`;
 const apiEndPoint = `https://preview.kapstonellc.com/idcsdemo/api/v1/${getTenantId()}/`;
 
 export class ApiService {
@@ -100,6 +101,14 @@ export class ApiService {
 
   async createUser(payload) {
     return await ApiService.postMethod(`${apiEndPoint}user`, payload);
+  }
+
+  async updateUser(payload) {
+    return await ApiService.postMethod(`${apiEndPoint}updateUser`, payload);
+  }
+
+  async enableDisableUser(userId, type) {
+    return await ApiService.postMethod(`${apiEndPoint}enableUser/${userId}?enable=${type}`, {});
   }
 
   async getGroups(query) {
