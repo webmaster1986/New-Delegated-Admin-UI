@@ -284,7 +284,8 @@ class ByGroups extends Component {
                 }
                 { isSidebar ?
                     <div className="custom-side-bar">
-                        <div className="text-right color-white mr-15">
+                        <div className="justify-content-between d-flex color-white mr-15">
+                            <div className="fs-18 ml-70 mt-5">Revoke Access</div>
                             <Icon
                                 type="close"
                                 className="fs-20 cursor-pointer"

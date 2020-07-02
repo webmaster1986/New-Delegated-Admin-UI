@@ -3,13 +3,14 @@ import {Card, CardBody, Col, Row, CardHeader} from "reactstrap";
 import queryString from 'query-string'
 import './createUser.scss';
 import {Input, Button, message, Table, Switch, Spin, Tabs, Select, Popconfirm} from "antd";
-// import {ApiService} from "../../services";
 import {ApiService} from "../../services/ApiService1";
 import ModifyUser from "./ModifyUser";
 import SetupProxy from "./SetupProxy";
 import {getUserName} from "../../services/ApiService";
 const {Search} = Input;
 const {TabPane} = Tabs;
+
+const userField = { active: true }
 
 class MyProfile extends Component {
     _apiService = new ApiService();
@@ -26,9 +27,7 @@ class MyProfile extends Component {
             isSaving: false,
             isModifyUser: false, // !!query.id,
             selectedRecord: {},
-            newUser: {
-                active: true
-            },
+            newUser: userField,
             profile: {},
             totalResource: 0,
             defaultCurrent: 1,
@@ -186,7 +185,7 @@ class MyProfile extends Component {
         this.setState({
             isAddUser: false,
             isModifyUser: false,
-            newUser: {}
+            newUser: userField
         })
     }
 
@@ -210,9 +209,7 @@ class MyProfile extends Component {
                 isSaving: false,
                 isAddUser: false,
                 isModifyUser: false,
-                newUser: {
-                    active: true
-                },
+                newUser: userField,
                 searchUser: ''
             })
         }
@@ -237,9 +234,7 @@ class MyProfile extends Component {
                 isSaving: false,
                 isAddUser: false,
                 isModifyUser: false,
-                newUser: {
-                    active: true
-                },
+                newUser: userField,
                 searchUser: ''
             })
         }
@@ -262,9 +257,7 @@ class MyProfile extends Component {
                 isEnabledSaving: false,
                 isAddUser: false,
                 isModifyUser: false,
-                newUser: {
-                    active: true
-                },
+                newUser: userField,
                 searchUser: ''
             })
         }

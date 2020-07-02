@@ -1,19 +1,31 @@
 import React, {Component} from 'react'
-import {Card, CardBody, Col, Container, Row, CardHeader} from "reactstrap";
+import {Card, CardBody, Col, Row, CardHeader} from "reactstrap";
 import './createUser.scss';
 import '../Home/Home.scss';
-import {DatePicker, Input, Button, Tabs, Table, Modal, Icon, Tooltip, Menu, Dropdown, Spin, Select} from "antd";
+import {
+    DatePicker,
+    Input,
+    Button,
+    Tabs,
+    Table,
+    Modal,
+    Icon,
+    Spin,
+    Select,
+    message
+} from "antd";
 import moment from "moment";
-import {ApiService} from "../../services";
+import { ApiService } from "../../services/ApiService1"
 
 const {TextArea} = Input;
 const { TabPane } = Tabs;
+
+const userField = { active: true }
+
 class ModifyUser extends Component {
+    _apiService = new ApiService()
     state = {
-        isEdit: false,
-        identityUsersList: [],
-        isLoading: false,
-        isModifyUser: false,
+        isSaving: false,
         activeKey: '',
         Application: [],
         PhoneNumber: '',
@@ -118,7 +130,8 @@ class ModifyUser extends Component {
         ],
         expendedRows: [],
         isCommentModal: false,
-        comment: {}
+        comment: {},
+        userDetails: userField
     };
 
     componentDidMount() {
@@ -129,18 +142,17 @@ class ModifyUser extends Component {
                 entitlements.push({Category: 'Application', ApplicationName: x['Application Name'], Name: y.Name, Value: y.Value })
             })
         });
-        // (selectedRecord.Role || []).forEach((z) => {
-        //     entitlements.push({Category: 'Role', ApplicationName: '', Name: z.RoleName, Value: '' })
-        // })
-      this.setState({
-        ...(selectedRecord || {}),
-        Application: selectedRecord.Application,
-        PhoneNumber: selectedRecord.PhoneNumber,
-        TenantID: selectedRecord.TenantID,
-        Role: selectedRecord.Role,
-        entitlements
-      })
-    }
+
+        this.setState({
+            ...(selectedRecord || {}),
+            Application: selectedRecord.Application,
+            PhoneNumber: selectedRecord.PhoneNumber,
+            TenantID: selectedRecord.TenantID,
+            Role: selectedRecord.Role,
+            entitlements,
+            userDetails: selectedRecord && Object.keys(selectedRecord).length ? selectedRecord : userField
+        })
+}
 
     onTabChange = (activeKey) => {
         this.setState({
@@ -148,21 +160,24 @@ class ModifyUser extends Component {
         })
     }
   
-  onChange = (event) => {
+    onUserDetailsChange = (event) => {
     this.setState({
-      [event.target.name]: event.target.value,
+        userDetails: {
+            ...this.state.userDetails,
+            [event.target.name]: event.target.value
+        }
     })
   }
   
-  onDateChange = (name, dateString) => {
+    onDateChange = (name, dateString) => {
     this.setState({
       [name]: dateString
     })
   }
   
-  Attributes = () => {
-    const { LicenseID, LicenseName, LicenseExpiry, TrainingExpiry, TrainingCompletion, TrainingType } = this.state;
-    const { firstname, manager, middleName, organization, lastName, emails, displayName, userType, userName, active, id } = this.state;
+    Attributes = () => {
+    const { LicenseID, LicenseName, LicenseExpiry, TrainingExpiry, TrainingCompletion, TrainingType, userDetails } = this.state;
+    const { firstname, middleName, organization, lastName, emails, displayName, userType, userName, active, id } = userDetails || {};
     return(
       <div>
           <Row className="align-items-center">
@@ -172,7 +187,7 @@ class ModifyUser extends Component {
               <Col md={4} sm={12} xs={12}>
                   <Input
                       name="firstname"
-                      onChange={this.onChange}
+                      onChange={this.onUserDetailsChange}
                       value={firstname}
                   />
               </Col>
@@ -182,7 +197,7 @@ class ModifyUser extends Component {
               <Col md={4} sm={12} xs={12}>
                   <Input
                       className="mt-10"
-                      onChange={this.onChange}
+                      onChange={this.onUserDetailsChange}
                       name="middleName"
                       value={middleName}
                   />
@@ -194,7 +209,7 @@ class ModifyUser extends Component {
                   <Input
                       name="lastName"
                       value={lastName}
-                      onChange={this.onChange}
+                      onChange={this.onUserDetailsChange}
                       className="mt-10"
                   />
               </Col>
@@ -204,7 +219,7 @@ class ModifyUser extends Component {
               <Col md={4} sm={12} xs={12}>
                   <Input
                       className="mt-10"
-                      onChange={this.onChange}
+                      onChange={this.onUserDetailsChange}
                       name="userName"
                       value={userName}
                       disabled={id}
@@ -216,7 +231,7 @@ class ModifyUser extends Component {
               <Col md={4} sm={12} xs={12}>
                   <Input
                       value={organization}
-                      onChange={this.onChange}
+                      onChange={this.onUserDetailsChange}
                       name="organization"
                       className="mt-10"
                   />
@@ -228,7 +243,7 @@ class ModifyUser extends Component {
                   <Input
                       name="emails"
                       value={emails}
-                      onChange={this.onChange}
+                      onChange={this.onUserDetailsChange}
                       className="mt-10"
                   />
               </Col>
@@ -240,7 +255,7 @@ class ModifyUser extends Component {
                       className="mt-10"
                       value={displayName}
                       name="displayName"
-                      onChange={this.onChange}
+                      onChange={this.onUserDetailsChange}
                   />
               </Col>
               <Col md={2} sm={12} xs={12}>
@@ -251,7 +266,7 @@ class ModifyUser extends Component {
                       className="w-100-p mt-10"
                       name="userType"
                       value={userType}
-                      onChange={(value) => this.onChange({
+                      onChange={(value) => this.onUserDetailsChange({
                           target: {
                               name: 'userType',
                               value
@@ -271,8 +286,8 @@ class ModifyUser extends Component {
                   <span><b>Identity Status</b></span>
               </Col>
               <Col md={4} sm={12} xs={12}>
-                  <Button type={active ? "primary" : ''} size="small" className="mt-10 mr-10" onClick={() => this.onChange({target: {name: 'active', value: true}})}>Active</Button>
-                  <Button type={!active ? "primary" : ''} size="small" className="mt-10" onClick={() => this.onChange({target: {name: 'active', value: false}})}>Inactive</Button>
+                  <Button type={active ? "primary" : ''} size="small" className="mt-10 mr-10" onClick={() => this.onUserDetailsChange({target: {name: 'active', value: true}})}>Active</Button>
+                  <Button type={!active ? "primary" : ''} size="small" className="mt-10" onClick={() => this.onUserDetailsChange({target: {name: 'active', value: false}})}>Inactive</Button>
               </Col>
           </Row>
           <hr/>
@@ -704,6 +719,25 @@ class ModifyUser extends Component {
         });
     }
 
+    onUpdateUser = async () => {
+        const { userDetails } = this.state
+        this.setState({
+            isSaving: true
+        })
+        const data = await this._apiService.updateUser(userDetails)
+        if (!data || data.error) {
+            message.error('something is wrong! please try again');
+            this.setState({
+                isSaving: false
+            })
+        } else {
+            message.success("User updated Successfully");
+            this.setState({
+                isSaving: false
+            })
+        }
+    }
+
     commentModal = () => {
         const {comment, isCommentModal} = this.state;
         return (
@@ -723,49 +757,63 @@ class ModifyUser extends Component {
     }
 
     render() {
+        const { isSaving, userDetails = {} } = this.state
         return(
             <Card>
                 {this.commentModal()}
                 <CardHeader>
                     <Row className="align-items-center">
                         <Col md={6} sm={12} xs={12} className="d-flex">
-                                        <span className="cursor-pointer ml-5 mr-5"><a><img
-                                            src={require("../../images/create-user.png")} style={{width: 40}}/></a></span>
+                            <span className="cursor-pointer ml-5 mr-5">
+                                <a>
+                                    <img src={require("../../images/create-user.png")} style={{width: 40}}/>
+                                </a>
+                            </span>
                             <h4 className="mt-10">Profile</h4>
                         </Col>
-                        {   !this.props.isProfile ?
-                            <Col md={6} sm={12} xs={12}>
-                                <div className="text-right">
-                                    <Button className="square ml-10" size={"large"} color="primary" onClick={() => this.onCancelModifyUser(false)}>&nbsp;<a><img src={require("../../images/multiply.png")} style={{width: 20}} /></a></Button>
-                                </div>
-                            </Col> : null
-                        }
+                        <Col md={6} sm={12} xs={12}>
+                            <div className="text-right">
+                                <Button
+                                    className="square ml-10"
+                                    size={"large"}
+                                    color="primary"
+                                    onClick={this.onUpdateUser}
+                                    disabled={isSaving || userDetails && !userDetails.id}
+                                >
+                                    {
+                                        isSaving ?
+                                            <Spin className='color-white mr-10'/> : null
+                                    }
+                                    Submit
+                                </Button>
+                            </div>
+                        </Col>
                     </Row>
                 </CardHeader>
                 <CardBody>
-                        <Row>
-                            <Col md={12} sm={12} xs={12}>
-                                <Tabs defaultActiveKey="attributes" onChange={this.onTabChange} size="small">
-                                    <TabPane tab="Attributes" key="attributes">
-                                        {this.Attributes()}
-                                    </TabPane>
-                                    <TabPane tab="Accounts" key="account">
-                                        {this.Account()}
-                                    </TabPane>
-                                    <TabPane tab="Entitlement" key="entitlement">
-                                        {this.Entitlement()}
-                                    </TabPane>
-                                    <TabPane tab="Risk Score" key="riskScore">
-                                        Risk Score To be implement
-                                    </TabPane>
-                                    <TabPane tab="SoD Violations" key="SODValidation">
-                                        {this.SODViolations()}
-                                    </TabPane>
-                                    <TabPane tab="Activities" key="activities">
-                                        Activities To be implement
-                                    </TabPane>
-                                </Tabs>
-                            </Col>
+                    <Row>
+                        <Col md={12} sm={12} xs={12}>
+                            <Tabs defaultActiveKey="attributes" onChange={this.onTabChange} size="small">
+                                <TabPane tab="Attributes" key="attributes">
+                                    {this.Attributes()}
+                                </TabPane>
+                                <TabPane tab="Accounts" key="account">
+                                    {this.Account()}
+                                </TabPane>
+                                <TabPane tab="Entitlement" key="entitlement">
+                                    {this.Entitlement()}
+                                </TabPane>
+                                <TabPane tab="Risk Score" key="riskScore">
+                                    Risk Score To be implement
+                                </TabPane>
+                                <TabPane tab="SoD Violations" key="SODValidation">
+                                    {this.SODViolations()}
+                                </TabPane>
+                                <TabPane tab="Activities" key="activities">
+                                    Activities To be implement
+                                </TabPane>
+                            </Tabs>
+                        </Col>
                         </Row>
                 </CardBody>
                 {
