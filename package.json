@@ -49,7 +49,7 @@
     "react-ckeditor-component": "1.1.0",
     "react-csv": "1.1.1",
     "react-csv-reader": "^1.2.2",
-    "react-dev-utils": "6.0.3",
+    "react-dev-utils": "11.0.4",
     "react-dom": "16.8.4",
     "react-i18next": "10.9.0",
     "react-redux": "6.0.1",
